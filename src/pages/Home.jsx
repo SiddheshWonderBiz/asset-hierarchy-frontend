@@ -32,17 +32,17 @@ const Home = () => {
     setShowConfirmDeleteModal(true);
   };
 
-  const handleParsedData = async (data) => {
-    try {
-      await uploadHierarchyData(data);
-      await reloadHierarchy();
-      console.log("Parsed and uploaded hierarchy successfully.");
-      toast.success("Hierarchy uploaded successfully.");
-    } catch (err) {
-     const errMsg = error.response?.data || "Unexpected error occurred.";
-     toast.error(`Error uploading: ${errMsg}`);
-    }
-  };
+  // const handleParsedData = async (data) => {
+  //   try {
+  //     await uploadHierarchyData(data);
+  //     await reloadHierarchy();
+  //     console.log("Parsed and uploaded hierarchy successfully.");
+  //     toast.success("Hierarchy uploaded successfully.");
+  //   } catch (err) {
+  //    const errMsg = error.response?.data || "Unexpected error occurred.";
+  //    toast.error(`Error uploading: ${errMsg}`);
+  //   }
+  // };
 
   useEffect(() => {
     reloadHierarchy();
