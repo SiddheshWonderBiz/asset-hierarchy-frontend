@@ -3,7 +3,7 @@ import FileUploader from "../components/FileUploader";
 import HierarchyViewer from "../components/HierarchyViewer";
 import AddNodeModal from "../components/AddNodeModal.jsx";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal.jsx";
-import { fetchHierarchyData ,uploadHierarchyData } from "../utils/api.js";
+import { fetchHierarchyData, uploadHierarchyData } from "../utils/api.js";
 
 const Home = () => {
   const [hierarchyData, setHierarchyData] = useState(null);
@@ -30,16 +30,15 @@ const Home = () => {
     setShowConfirmDeleteModal(true);
   };
 
-const handleParsedData = async (data) => {
-  try {
-    await uploadHierarchyData(data);  // Send to backend first
-    await reloadHierarchy();          // Then fetch fresh from backend
-    console.log("Parsed and uploaded hierarchy successfully.");
-  } catch (err) {
-    console.error("Error uploading parsed data:", err);
-  }
-};
-
+  const handleParsedData = async (data) => {
+    try {
+      await uploadHierarchyData(data);
+      await reloadHierarchy();
+      console.log("Parsed and uploaded hierarchy successfully.");
+    } catch (err) {
+      console.error("Error uploading parsed data:", err);
+    }
+  };
 
   useEffect(() => {
     reloadHierarchy();
@@ -47,8 +46,8 @@ const handleParsedData = async (data) => {
 
   return (
     <main className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-10">
-        {/* Heading */}
+      <div className="max-w-7xl mx-auto space-y-10">
+        {/* Header */}
         <div className="text-center">
           <h1 className="text-3xl font-bold tracking-tight text-gray-800 sm:text-4xl">
             Asset Hierarchy Management
@@ -58,29 +57,30 @@ const handleParsedData = async (data) => {
           </p>
         </div>
 
-        {/* File Uploader */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <FileUploader onUploadSuccess={reloadHierarchy} />
-        </div>
+        <div className="flex flex-col lg:flex-row gap-6">
+          <div className="lg:w-2/3 w-full bg-white shadow rounded-lg p-6">
+            {hierarchyData ? (
+              <HierarchyViewer
+                data={hierarchyData}
+                onAdd={handleAddClick}
+                onDelete={handleDeleteClick}
+                onUpdate={reloadHierarchy}
+              />
+            ) : (
+              <p className="text-center text-gray-500">
+                No hierarchy data available. Please upload a JSON file.
+              </p>
+            )}
+          </div>
 
-        {/* Hierarchy Viewer */}
-        <div className="bg-white shadow rounded-lg p-6">
-          {hierarchyData ? (
-            <HierarchyViewer
-              data={hierarchyData}
-              onAdd={handleAddClick}
-              onDelete={handleDeleteClick}
-              onUpdate={reloadHierarchy}
-            />
-          ) : (
-            <p className="text-center text-gray-500">
-              No hierarchy data available. Please upload a JSON file.
-            </p>
-          )}
+        
+          <div className="lg:w-1/3 w-full bg-white shadow rounded-lg p-6 space-y-6 h-fit">
+            <FileUploader onUploadSuccess={reloadHierarchy} />
+          </div>
         </div>
       </div>
 
-      {/* Modals */}
+
       {showAddNodeModal && (
         <AddNodeModal
           parentNode={selectedNode}

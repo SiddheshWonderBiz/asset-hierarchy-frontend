@@ -17,7 +17,7 @@ const AddNodeModal = ({ parentNode, onClose, onSuccess }) => {
     };
 
     try {
-      await addNode(parentId, newNode); // 
+      await addNode(parentId, newNode);
       onSuccess();
       onClose();
     } catch (error) {
@@ -34,8 +34,9 @@ const AddNodeModal = ({ parentNode, onClose, onSuccess }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded shadow-lg w-96">
+        
         <h2 className="text-xl font-bold mb-4">
-          Add Child to <span className="text-blue-600">{parentNode.id}:{parentNode.name}</span>
+          Add Child to <span className="text-green-600">{parentNode.id}:{parentNode.name}</span>
         </h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
@@ -81,7 +82,7 @@ const AddNodeModal = ({ parentNode, onClose, onSuccess }) => {
             </button>
             <button
               type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded"
+              className="bg-green-600 text-white px-4 py-2 rounded"
             >
               Add
             </button>
