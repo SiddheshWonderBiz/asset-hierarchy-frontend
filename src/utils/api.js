@@ -48,16 +48,30 @@ export const deleteNode = async (nodeId) => {
         throw error;
     }
 };
-export async function uploadHierarchyData(data) {
+export async function uploadHierarchyData(file) {
+  const formData = new FormData();
+  formData.append("file", file);  
+
   const response = await fetch("api/Hierarchy/upload", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
+    body: formData, 
   });
 
   if (!response.ok) {
     throw new Error("Upload failed");
   }
+
+  return await response.text(); // or response.json() if your backend returns JSON
 }
+
+
+export const downloadHierarchyData = async () => {
+  const response = await fetch("api/Hierarchy/download");
+
+  if (!response.ok) {
+    throw new Error("Download failed");
+  }
+
+  const blob = await response.blob();
+  return blob;
+};

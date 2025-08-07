@@ -4,7 +4,7 @@ import { addNode } from "../utils/api.js";
 const AddNodeModal = ({ parentNode, onClose, onSuccess }) => {
   const [id, setId] = useState("");
   const [name, setName] = useState("");
-  const [parentId, setParentId] = useState(""); // ✅ FIXED: Add this line
+  const [parentId, setParentId] = useState(""); // 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,7 +17,7 @@ const AddNodeModal = ({ parentNode, onClose, onSuccess }) => {
     };
 
     try {
-      await addNode(parentId, newNode); // ✅ Use manually entered parentId
+      await addNode(parentId, newNode); // 
       onSuccess();
       onClose();
     } catch (error) {
@@ -26,7 +26,7 @@ const AddNodeModal = ({ parentNode, onClose, onSuccess }) => {
 
     setId("");
     setName("");
-    setParentId(""); // ✅ Reset
+    setParentId(""); 
   };
 
   if (!parentNode) return null;
@@ -35,7 +35,7 @@ const AddNodeModal = ({ parentNode, onClose, onSuccess }) => {
     <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded shadow-lg w-96">
         <h2 className="text-xl font-bold mb-4">
-          Add Child to <span className="text-blue-600">{parentNode.name}</span>
+          Add Child to <span className="text-blue-600">{parentNode.id}:{parentNode.name}</span>
         </h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-3">

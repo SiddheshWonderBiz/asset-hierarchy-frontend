@@ -3,7 +3,7 @@ import FileUploader from "../components/FileUploader";
 import HierarchyViewer from "../components/HierarchyViewer";
 import AddNodeModal from "../components/AddNodeModal.jsx";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal.jsx";
-import { fetchHierarchyData } from "../utils/api.js";
+import { fetchHierarchyData ,uploadHierarchyData } from "../utils/api.js";
 
 const Home = () => {
   const [hierarchyData, setHierarchyData] = useState(null);
@@ -60,7 +60,7 @@ const handleParsedData = async (data) => {
 
         {/* File Uploader */}
         <div className="bg-white shadow rounded-lg p-6">
-          <FileUploader onDataParsed={handleParsedData} />
+          <FileUploader onUploadSuccess={reloadHierarchy} />
         </div>
 
         {/* Hierarchy Viewer */}

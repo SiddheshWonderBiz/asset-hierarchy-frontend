@@ -6,20 +6,20 @@ import { addNode, deleteNode } from "../utils/api";
 const NodeItem = ({ node, onUpdate, onAdd, onDelete }) => {
   return (
     <div className="ml-4 mt-2 border-l border-gray-300 pl-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center ">
         <span className="font-mono">{node.id}:{node.name}</span>
-        <div className="space-x-2">
+        <div className="space-x-2 ml-3">
           <button
-            className="bg-blue-500 text-white px-2 py-1 rounded text-sm"
+            className="bg-blue-500 text-white py-0.5 px-2  rounded-full text-sm"
             onClick={() => onAdd(node)}  
           >
-            Add
+            +
           </button>
           <button
-            className="bg-red-500 text-white px-2 py-1 rounded text-sm"
+            className="bg-red-500 text-white py-0.5 px-2  rounded-full text-sm"
             onClick={() => onDelete(node)} 
           >
-            Delete
+            -
           </button>
         </div>
       </div>
