@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { deleteNode } from "../utils/api";
+import { toast } from "react-toastify";
 
 const ConfirmDeleteModal = ({ nodeToDelete, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
@@ -8,11 +9,15 @@ const ConfirmDeleteModal = ({ nodeToDelete, onClose, onSuccess }) => {
     if (!nodeToDelete) return;
     setLoading(true);
     try {
-      await deleteNode(nodeToDelete.id);  // ✅ Call delete API
-      onSuccess();                        // ✅ Refresh tree
-      onClose();                          // ✅ Close modal
+      await deleteNode(nodeToDelete.id);  
+      toast.success(`Node ${nodeToDelete.name} deleted successfully.`);
+      onSuccess();                       
+      onClose();     
+                           
     } catch (error) {
       console.error("Error deleting node:", error);
+      const errMsg = error.response?.data || "Unexpected error occurred.";
+      toast.error(`Error deleting node: ${errMsg}`);
     } finally {
       setLoading(false);
     }

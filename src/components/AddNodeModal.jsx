@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { addNode } from "../utils/api.js";
+import { toast } from "react-toastify";
 
 const AddNodeModal = ({ parentNode, onClose, onSuccess }) => {
   const [id, setId] = useState("");
@@ -18,10 +19,14 @@ const AddNodeModal = ({ parentNode, onClose, onSuccess }) => {
 
     try {
       await addNode(parentId, newNode);
+      
+      toast.success(`Node ${name} added successfully.`);
       onSuccess();
       onClose();
     } catch (error) {
       console.error("Error adding node:", error);
+      const errMsg =   error.response?.data?.error ||error.response?.data?.message ||  error.response?.data ||  error.message|| "Unexpected error occurred.";
+      toast.error(`Error adding node: ${errMsg}`);
     }
 
     setId("");

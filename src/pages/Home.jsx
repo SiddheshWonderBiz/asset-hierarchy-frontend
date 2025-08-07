@@ -4,6 +4,7 @@ import HierarchyViewer from "../components/HierarchyViewer";
 import AddNodeModal from "../components/AddNodeModal.jsx";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal.jsx";
 import { fetchHierarchyData, uploadHierarchyData } from "../utils/api.js";
+import { toast } from "react-toastify";
 
 const Home = () => {
   const [hierarchyData, setHierarchyData] = useState(null);
@@ -16,7 +17,8 @@ const Home = () => {
       const data = await fetchHierarchyData();
       setHierarchyData(data);
     } catch (error) {
-      console.error("Error reloading hierarchy:", error);
+      const errMsg = error.response?.data || "Unexpected error occurred.";
+      toast.error(`Error reloading: ${errMsg}`);
     }
   };
 
@@ -35,8 +37,10 @@ const Home = () => {
       await uploadHierarchyData(data);
       await reloadHierarchy();
       console.log("Parsed and uploaded hierarchy successfully.");
+      toast.success("Hierarchy uploaded successfully.");
     } catch (err) {
-      console.error("Error uploading parsed data:", err);
+     const errMsg = error.response?.data || "Unexpected error occurred.";
+     toast.error(`Error uploading: ${errMsg}`);
     }
   };
 
@@ -73,13 +77,11 @@ const Home = () => {
             )}
           </div>
 
-        
           <div className="lg:w-1/3 w-full bg-white shadow rounded-lg p-6 space-y-6 h-fit">
             <FileUploader onUploadSuccess={reloadHierarchy} />
           </div>
         </div>
       </div>
-
 
       {showAddNodeModal && (
         <AddNodeModal

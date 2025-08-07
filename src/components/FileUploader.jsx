@@ -1,5 +1,6 @@
 import React from "react";
 import { uploadHierarchyData, downloadHierarchyData } from "../utils/api";
+import { toast } from "react-toastify";
 
 const FileUploader = ({ onUploadSuccess }) => {
   const handleFileChange = async (e) => {
@@ -8,10 +9,12 @@ const FileUploader = ({ onUploadSuccess }) => {
 
     try {
       await uploadHierarchyData(file);
+      toast.success("File uploaded successfully.");
       onUploadSuccess();
     } catch (error) {
       console.error("File upload failed:", error);
-      alert("File upload failed: " + error.message);
+      const errMsg = error.response?.data || "Unexpected error occurred.";
+      toast.error(`Error uploading file: ${errMsg}`);
     }
   };
 
@@ -26,9 +29,11 @@ const FileUploader = ({ onUploadSuccess }) => {
       link.click();
 
       window.URL.revokeObjectURL(url);
+      toast.success("File downloaded successfully.");
     } catch (error) {
       console.error("Download failed:", error);
-      alert("Download failed: " + error.message);
+      const errMsg = error.response?.data || "Unexpected error occurred.";  
+      toast.error(`Error downloading file: ${errMsg}`);
     }
   };
 
