@@ -4,7 +4,7 @@ const NodeItem = ({ node, onUpdate, onAdd, onDelete }) => {
   return (
     <div className="ml-4 mt-2 border-l border-gray-300 pl-4">
       <div className="flex items-center ">
-        <span className="font-mono">{node.id}:{node.name}</span>
+        <span className="font-mono">{node.name}</span>
         <div className="space-x-2 ml-3">
           <button
             className="bg-green-500 text-white py-0.5 px-2  rounded-full text-sm"

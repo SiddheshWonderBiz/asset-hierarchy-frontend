@@ -5,11 +5,14 @@ import { toast } from "react-toastify";
 const AddNodeModal = ({ parentNode, onClose, onSuccess }) => {
   const [id, setId] = useState("");
   const [name, setName] = useState("");
-  const [parentId, setParentId] = useState(""); // 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!id || !name || !parentId) return;
+
+    if (!id.trim() || !name.trim()) {
+      toast.error("Both ID and Name are required.");
+      return;
+    }
 
     const newNode = {
       id,
@@ -18,20 +21,25 @@ const AddNodeModal = ({ parentNode, onClose, onSuccess }) => {
     };
 
     try {
-      await addNode(parentId, newNode);
-      
-      toast.success(`Node ${name} added successfully.`);
+      await addNode(parentNode.id, newNode); // ✅ use parentNode.id directly
+
+      toast.success(`Node "${name}" added successfully.`);
       onSuccess();
       onClose();
     } catch (error) {
       console.error("Error adding node:", error);
-      const errMsg =   error.response?.data?.error ||error.response?.data?.message ||  error.response?.data ||  error.message|| "Unexpected error occurred.";
+      const errMsg =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.response?.data ||
+        error.message ||
+        "Unexpected error occurred.";
       toast.error(`Error adding node: ${errMsg}`);
     }
 
+    // Reset form fields
     setId("");
     setName("");
-    setParentId(""); 
   };
 
   if (!parentNode) return null;
@@ -39,22 +47,13 @@ const AddNodeModal = ({ parentNode, onClose, onSuccess }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded shadow-lg w-96">
-        
         <h2 className="text-xl font-bold mb-4">
-          Add Child to <span className="text-green-600">{parentNode.id}:{parentNode.name}</span>
+          Add Child to{" "}
+          <span className="text-green-600">
+            {parentNode.name}
+          </span>
         </h2>
         <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label className="block mb-1 font-medium">Enter Parent ID</label>
-            <input
-              type="number"
-              value={parentId}
-              onChange={(e) => setParentId(Number(e.target.value))}
-              className="w-full border p-2 rounded"
-              required
-            />
-          </div>
-
           <div className="mb-3">
             <label className="block mb-1 font-medium">ID</label>
             <input
@@ -64,6 +63,9 @@ const AddNodeModal = ({ parentNode, onClose, onSuccess }) => {
               className="w-full border p-2 rounded"
               required
             />
+            <p className="text-sm text-gray-500 mt-1">
+              Enter a unique ID for the node.
+            </p>
           </div>
 
           <div className="mb-4">
@@ -74,7 +76,11 @@ const AddNodeModal = ({ parentNode, onClose, onSuccess }) => {
               onChange={(e) => setName(e.target.value)}
               className="w-full border p-2 rounded"
               required
+              maxLength={50}
             />
+            <p className="text-sm text-gray-500 mt-1">
+              {name.length}/50 characters
+            </p>
           </div>
 
           <div className="flex justify-end space-x-3">

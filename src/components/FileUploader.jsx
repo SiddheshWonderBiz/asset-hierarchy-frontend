@@ -27,7 +27,6 @@ const FileUploader = ({ onUploadSuccess }) => {
       link.href = url;
       link.download = "Hierarchy.json";
       link.click();
-
       window.URL.revokeObjectURL(url);
       toast.success("File downloaded successfully.");
     } catch (error) {
