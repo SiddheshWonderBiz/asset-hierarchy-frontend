@@ -15,13 +15,13 @@ const AddNodeModal = ({ parentNode, onClose, onSuccess }) => {
     }
 
     const newNode = {
-      id,
+      id:Number(id),
       name,
       children: [],
     };
 
     try {
-      await addNode(parentNode.id, newNode); // ✅ use parentNode.id directly
+       const res =await addNode(parentNode.id, newNode); // ✅ use parentNode.id directly
 
       toast.success(`Node "${name}" added successfully.`);
       onSuccess();
@@ -57,7 +57,7 @@ const AddNodeModal = ({ parentNode, onClose, onSuccess }) => {
           <div className="mb-3">
             <label className="block mb-1 font-medium">ID</label>
             <input
-              type="text"
+              type="number"
               value={id}
               onChange={(e) => setId(e.target.value)}
               className="w-full border p-2 rounded"
