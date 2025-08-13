@@ -13,8 +13,7 @@ const FileUploader = ({ onUploadSuccess }) => {
       onUploadSuccess();
     } catch (error) {
       console.error("File upload failed:", error);
-      const errMsg = error.response?.data || "Unexpected error occurred.";
-      toast.error(`Error uploading file: ${errMsg}`);
+      toast.error(error.message);
     }
   };
 

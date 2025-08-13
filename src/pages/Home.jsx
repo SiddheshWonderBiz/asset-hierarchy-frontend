@@ -11,11 +11,13 @@ const Home = () => {
   const [showAddNodeModal, setShowAddNodeModal] = useState(false);
   const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const [selectedNode, setSelectedNode] = useState(null);
+  const [count , setCount] = useState(0);
 
   const reloadHierarchy = async () => {
     try {
       const data = await fetchHierarchyData();
-      setHierarchyData(data);
+      setHierarchyData(data.tree);
+      setCount(data.totalNodes);
     } catch (error) {
       const errMsg = error.response?.data || "Unexpected error occurred.";
       toast.error(`Error reloading: ${errMsg}`);
@@ -59,6 +61,7 @@ const Home = () => {
           <p className="mt-2 text-sm text-gray-500">
             Upload, visualize, and manage your asset structure efficiently
           </p>
+           <p className="mb-4">Total Nodes: {count}</p>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6">

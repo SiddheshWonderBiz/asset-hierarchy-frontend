@@ -21,9 +21,19 @@ export const addNode = async (parentId, newNode) => {
       body: JSON.stringify(newNode),
     });
 
-    if (!response.ok) {
-      throw new Error(`Add node failed: ${response.status}`);
+        if (!response.ok) {
+      let errorMessage = `Add node failed: ${response.status}`;
+      try {
+        const errData = await response.json();
+        if (errData?.error) {
+          errorMessage = errData.error; // get backend's friendly error
+        }
+      } catch {
+        
+      }
+      throw new Error(errorMessage);
     }
+
 
     return await response.json();
   } catch (error) {
@@ -52,17 +62,27 @@ export async function uploadHierarchyData(file) {
   const formData = new FormData();
   formData.append("file", file);  
 
-  const response = await fetch("api/Hierarchy/upload", {
+  const response = await fetch("/api/Hierarchy/upload", {
     method: "POST",
     body: formData, 
   });
 
   if (!response.ok) {
-    throw new Error("Upload failed");
+    let errorMessage = "Upload failed";
+    try {
+      const errData = await response.json(); // try to read backend's error message
+      if (errData?.error) {
+        errorMessage = errData.error;
+      }
+    } catch {
+      // if backend didn't send JSON, keep default
+    }
+    throw new Error(errorMessage);
   }
 
-  return await response.text(); // or response.json() if your backend returns JSON
+  return await response.json(); // backend sends JSON on success
 }
+
 
 
 export const downloadHierarchyData = async () => {

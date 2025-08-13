@@ -21,20 +21,14 @@ const AddNodeModal = ({ parentNode, onClose, onSuccess }) => {
     };
 
     try {
-       const res =await addNode(parentNode.id, newNode); // ✅ use parentNode.id directly
+       const res =await addNode(parentNode.id, newNode); 
 
       toast.success(`Node "${name}" added successfully.`);
       onSuccess();
       onClose();
     } catch (error) {
       console.error("Error adding node:", error);
-      const errMsg =
-        error.response?.data?.error ||
-        error.response?.data?.message ||
-        error.response?.data ||
-        error.message ||
-        "Unexpected error occurred.";
-      toast.error(`Error adding node: ${errMsg}`);
+      toast.error(error.message); 
     }
 
     // Reset form fields
