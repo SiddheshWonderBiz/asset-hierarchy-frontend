@@ -1,67 +1,53 @@
 import React, { useState } from "react";
-import { addNode } from "../utils/api.js";
+import { addNode, addHierarchy } from "../utils/api.js"; // ✅ Changed AddHierarchy → addHierarchy to match JS naming convention
 import { toast } from "react-toastify";
 
-const AddNodeModal = ({ parentNode, onClose, onSuccess }) => {
-  const [id, setId] = useState("");
+const AddNodeModal = ({ parentNode = null, onClose, onSuccess }) => {
   const [name, setName] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!id.trim() || !name.trim()) {
-      toast.error("Both ID and Name are required.");
+    if (!name.trim()) {
+      toast.error("Name is required.");
       return;
     }
 
     const newNode = {
-      id:Number(id),
       name,
       children: [],
     };
 
     try {
-       const res =await addNode(parentNode.id, newNode); 
+      if (parentNode && parentNode.id) {
+        // ✅ Case: Adding a child node
+        await addNode(parentNode.id, newNode);
+        toast.success(`Node "${name}" added under "${parentNode.name}".`);
+      } else {
+        // ✅ Case: Adding new hierarchy directly under root
+        await addHierarchy(newNode);
+        toast.success(`Hierarchy "${name}" added successfully.`);
+      }
 
-      toast.success(`Node "${name}" added successfully.`);
-      onSuccess();
-      onClose();
+      onSuccess(); // Refresh data
+      onClose(); // Close modal
+      setName(""); // Reset field
     } catch (error) {
       console.error("Error adding node:", error);
-      toast.error(error.message); 
+      toast.error(error?.message || "Failed to add node");
     }
-
-    // Reset form fields
-    setId("");
-    setName("");
   };
-
-  if (!parentNode) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded shadow-lg w-96">
         <h2 className="text-xl font-bold mb-4">
-          Add Child to{" "}
-          <span className="text-green-600">
-            {parentNode.name}
-          </span>
+          {parentNode && parentNode.name
+            ? <>Add Child to <span className="text-blue-600">{parentNode.name}</span></>
+            : "Add New Hierarchy"}
         </h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label className="block mb-1 font-medium">ID</label>
-            <input
-              type="number"
-              value={id}
-              onChange={(e) => setId(e.target.value)}
-              className="w-full border p-2 rounded"
-              required
-            />
-            <p className="text-sm text-gray-500 mt-1">
-              Enter a unique ID for the node.
-            </p>
-          </div>
 
+        <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block mb-1 font-medium">Name</label>
             <input

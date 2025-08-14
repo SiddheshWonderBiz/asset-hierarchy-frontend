@@ -15,9 +15,8 @@ const ConfirmDeleteModal = ({ nodeToDelete, onClose, onSuccess }) => {
       onClose();     
                            
     } catch (error) {
-      console.error("Error deleting node:", error);
-      const errMsg = error.response?.data || "Unexpected error occurred.";
-      toast.error(`Error deleting node: ${errMsg}`);
+       console.error("Error deleting node:", error);
+            toast.error(error.message); 
     } finally {
       setLoading(false);
     }

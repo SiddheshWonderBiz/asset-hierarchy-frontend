@@ -64,14 +64,15 @@ const Home = () => {
            <p className="mb-4">Total Nodes: {count}</p>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6">
-          <div className="lg:w-2/3 w-full bg-white shadow rounded-lg p-6">
+        <div className="flex flex-col lg:flex-row gap-6 ">
+          <div className="lg:w-2/3 w-full bg-white shadow rounded-lg p-6 ">
             {hierarchyData ? (
               <HierarchyViewer
                 data={hierarchyData}
                 onAdd={handleAddClick}
                 onDelete={handleDeleteClick}
                 onUpdate={reloadHierarchy}
+                onAddHierarchy={handleAddClick}
               />
             ) : (
               <p className="text-center text-gray-500">

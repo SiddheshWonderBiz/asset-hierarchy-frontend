@@ -85,9 +85,10 @@ const FileUploader = ({ onUploadSuccess }) => {
             onClick={handleDownload}
             className="w-full bg-green-500 text-white px-4 py-4 rounded-lg shadow hover:bg-green-600 transition h-20 flex items-center justify-center text-xs font-semibold"
           >
-            Download JSON/XML
+            Download JSON
           </button>
         </div>
+        
       </div>
     </div>
   );

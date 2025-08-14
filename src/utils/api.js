@@ -42,15 +42,51 @@ export const addNode = async (parentId, newNode) => {
   }
 };
 
+export const addHierarchy = async (newHierarchy) =>{
+  try{
+    const res = await fetch("/api/Hierarchy/addhierarchy", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newHierarchy),
+    })
+    if (!res.ok) {
+      let errorMessage = `Add hierarchy failed: ${res.status}`;
+      try {
+        const errData = await res.json();
+        if (errData?.error) {
+          errorMessage = errData.error; // get backend's friendly error
+        }
+      } catch {
+        
+      }
+      throw new Error(errorMessage);
+    }
+  }catch(error){
+    console.error("Error adding hierarchy:", error);
+    throw error;
+  }
+};
+
 export const deleteNode = async (nodeId) => {
     try {
         const response = await fetch(`/api/Hierarchy/remove/${nodeId}`, {
             method: 'DELETE',
         });
 
-        if (!response.ok) {
-            throw new Error(`Delete node failed: ${response.status}`);
+                if (!response.ok) {
+      let errorMessage = `Delete node failed: ${response.status}`;
+      try {
+        const errData = await response.json();
+        if (errData?.error) {
+          errorMessage = errData.error; // get backend's friendly error
         }
+      } catch {
+        
+      }
+      throw new Error(errorMessage);
+    }
 
         return await response.json();
     } catch (error) {
