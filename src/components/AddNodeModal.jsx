@@ -40,13 +40,13 @@ const AddNodeModal = ({ parentNode = null, onClose, onSuccess }) => {
     <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-300 scale-100">
         {/* Header */}
-        <div className="bg-gradient-to-r from-emerald-500 to-green-600 px-6 py-4 rounded-t-xl">
+        <div className="bg-green-600 px-6 py-4 rounded-t-xl">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
             </svg>
             {parentNode && parentNode.name ? (
-              <>Add Child to <span className="text-emerald-100 font-medium">{parentNode.name}</span></>
+              <>Add Child to <span className="text-emerald-200 font-medium">{parentNode.name}</span></>
             ) : (
               "Add New Hierarchy"
             )}
@@ -89,7 +89,7 @@ const AddNodeModal = ({ parentNode = null, onClose, onSuccess }) => {
               </button>
               <button
                 type="submit"
-                className="flex-1 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-medium py-3 px-4 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105"
+                className="flex-1 bg-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-medium py-3 px-4 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105"
               >
                 Add Node
               </button>
