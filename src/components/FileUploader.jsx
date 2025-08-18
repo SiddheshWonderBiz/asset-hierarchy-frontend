@@ -8,7 +8,7 @@ const FileUploader = ({ onUploadSuccess }) => {
     if (!file) return;
 
     try {
-      await uploadHierarchyData(file); 
+      await uploadHierarchyData(file);
       toast.success("File uploaded successfully.");
       onUploadSuccess();
     } catch (error) {
@@ -22,8 +22,7 @@ const FileUploader = ({ onUploadSuccess }) => {
       const blob = await downloadHierarchyData();
 
       const contentType = blob.type;
-      const extension =
-        contentType.includes("xml") ? "xml" : "json";
+      const extension = contentType.includes("xml") ? "xml" : "json";
 
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -40,35 +39,45 @@ const FileUploader = ({ onUploadSuccess }) => {
   };
 
   return (
-    <div className="w-full mb-4">
-      <label className="block text-sm font-medium text-gray-700 mb-2">
-        Import/Export JSON/XML Hierarchy
-      </label>
+    <div className="w-full">
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center gap-2">
+          <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4M21 16V4m0 0l-4 4m4-4l4 4M5 20h14"/>
+          </svg>
+          Import/Export
+        </h3>
+        <p className="text-sm text-gray-600">Upload or download hierarchy data</p>
+      </div>
 
-      <div className="flex flex-col md:flex-row items-stretch gap-4">
+      <div className="space-y-4">
         {/* Upload Section */}
-        <div className="flex-1">
+        <div className="group">
           <label
             htmlFor="file-upload"
-            className="flex flex-col items-center justify-center w-full rounded-lg cursor-pointer bg-gray-200 hover:bg-gray-400 text-gray-950 transition-colors duration-200 ease-in-out p-4 shadow-md h-20"
+            className="flex flex-col items-center justify-center w-full rounded-xl cursor-pointer bg-gradient-to-br from-gray-50 to-gray-100 hover:from-emerald-50 hover:to-green-50 border-2 border-dashed border-gray-300 hover:border-emerald-400 transition-all duration-300 ease-in-out p-6 shadow-sm hover:shadow-md"
           >
-            <svg
-              className="w-5 h-5 mb-1 text-gray-950"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M7 16V4m0 0L3 8m4-4l4 4M21 16V4m0 0l-4 4m4-4l4 4M5 20h14"
-              ></path>
-            </svg>
-            <p className="text-xs text-gray-950 text-center">
-              <span className="font-semibold">Upload JSON/XML</span>
-            </p>
+            <div className="flex flex-col items-center justify-center">
+              <svg
+                className="w-8 h-8 mb-3 text-gray-400 group-hover:text-emerald-500 transition-colors duration-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                />
+              </svg>
+              <p className="text-sm font-semibold text-gray-700 group-hover:text-emerald-700 transition-colors duration-300">
+                Upload JSON/XML File
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Drag and drop or click to browse
+              </p>
+            </div>
             <input
               id="file-upload"
               type="file"
@@ -80,15 +89,15 @@ const FileUploader = ({ onUploadSuccess }) => {
         </div>
 
         {/* Download Button */}
-        <div className="flex-1">
-          <button
-            onClick={handleDownload}
-            className="w-full bg-green-500 text-white px-4 py-4 rounded-lg shadow hover:bg-green-600 transition h-20 flex items-center justify-center text-xs font-semibold"
-          >
-            Download JSON
-          </button>
-        </div>
-        
+        <button
+          onClick={handleDownload}
+          className="w-full bg-green-600 hover:to-green-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+          </svg>
+          Download Hierarchy
+        </button>
       </div>
     </div>
   );
