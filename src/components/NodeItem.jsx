@@ -1,17 +1,48 @@
 import React, { useState } from "react";
-import {
-  IoChevronForward,
-  IoChevronDown,
-} from "react-icons/io5";
+import { IoChevronForward, IoChevronDown } from "react-icons/io5";
 import { AiOutlinePlusCircle, AiOutlineDelete } from "react-icons/ai";
 
-const NodeItem = ({ node, onUpdate, onAdd, onDelete }) => {
+const NodeItem = ({
+  node,
+  onUpdate,
+  onAdd,
+  onDelete,
+  searchTerm = "",
+  isSearchMatch = false,
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const hasChildren = node.children && node.children.length > 0;
 
+  // Function to highlight search term in node name
+  const highlightSearchTerm = (text, searchTerm) => {
+    if (!searchTerm) return text;
+
+    const regex = new RegExp(`(${searchTerm})`, "gi");
+    const parts = text.split(regex);
+
+    return parts.map((part, index) =>
+      regex.test(part) ? (
+        <span
+          key={index}
+          className="bg-yellow-200 text-yellow-800 px-1 rounded font-semibold"
+        >
+          {part}
+        </span>
+      ) : (
+        part
+      )
+    );
+  };
+
   return (
     <div className="group">
-      <div className="bg-white rounded-lg border border-gray-200 hover:border-emerald-300 transition-all duration-200 hover:shadow-md">
+      <div
+        className={`bg-white rounded-lg border transition-all duration-200 hover:shadow-md ${
+          isSearchMatch
+            ? "border-emerald-400 shadow-md ring-2 ring-emerald-100"
+            : "border-gray-200 hover:border-emerald-300"
+        }`}
+      >
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center space-x-3 flex-1">
             {hasChildren && (
@@ -26,15 +57,25 @@ const NodeItem = ({ node, onUpdate, onAdd, onDelete }) => {
                 )}
               </button>
             )}
-            
+
             <div className="flex items-center gap-3 flex-1">
-              <div className="w-3 h-3 bg-gradient-to-r from-emerald-400 to-green-500 rounded-full"></div>
-              <span className="font-medium text-gray-800 text-lg">{node.name}</span>
+              <div
+                className={`w-3 h-3 rounded-full ${
+                  isSearchMatch
+                    ? "bg-gradient-to-r from-yellow-400 to-orange-500"
+                    : "bg-gradient-to-r from-emerald-400 to-green-500"
+                }`}
+              ></div>
+              <span className="font-medium text-gray-800 text-lg">
+                {highlightSearchTerm(node.name, searchTerm)}
+              </span>
               {hasChildren && (
                 <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-medium">
-                  {node.children.length} {node.children.length === 1 ? 'child' : 'children'}
+                  {node.children.length}{" "}
+                  {node.children.length === 1 ? "child" : "children"}
                 </span>
               )}
+              
             </div>
           </div>
 
@@ -70,6 +111,10 @@ const NodeItem = ({ node, onUpdate, onAdd, onDelete }) => {
                       onUpdate={onUpdate}
                       onAdd={onAdd}
                       onDelete={onDelete}
+                      searchTerm={searchTerm}
+                      isSearchMatch={child.name
+                        .toLowerCase()
+                        .includes(searchTerm.toLowerCase())}
                     />
                   </div>
                 </div>

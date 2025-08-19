@@ -13,6 +13,41 @@ const Home = () => {
   const [selectedNode, setSelectedNode] = useState(null);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState(0);
+
+  // Function to search through hierarchy and count matches
+  const searchInHierarchy = (node, term) => {
+    if (!term) return 0;
+
+    let matches = 0;
+    if (node.name.toLowerCase().includes(term.toLowerCase())) {
+      matches++;
+    }
+
+    if (node.children) {
+      node.children.forEach((child) => {
+        matches += searchInHierarchy(child, term);
+      });
+    }
+
+    return matches;
+  };
+
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+    if (hierarchyData && term) {
+      let totalMatches = 0;
+      if (hierarchyData.children) {
+        hierarchyData.children.forEach((child) => {
+          totalMatches += searchInHierarchy(child, term);
+        });
+      }
+      setSearchResults(totalMatches);
+    } else {
+      setSearchResults(0);
+    }
+  };
 
   const reloadHierarchy = async () => {
     try {
@@ -45,18 +80,19 @@ const Home = () => {
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-emerald-50 to-green-50">
       {/* Header with gradient background */}
-      <div className="bg-green-600 shadow-xl">
+      <div className="bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700 shadow-xl">
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="text-center text-white">
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
               Asset Hierarchy Management
             </h1>
             <p className="text-xl text-emerald-100 mb-6 max-w-2xl mx-auto">
-              Upload, visualize, and manage your asset structure with ease and efficiency.
+              Upload, visualize, and manage your asset structure with ease and
+              efficiency.
             </p>
             <div className="inline-flex items-center gap-2 bg-white bg-opacity-20 backdrop-blur-sm rounded-full px-6 py-3">
               <div className="w-2 h-2 bg-emerald-300 rounded-full animate-pulse"></div>
-              <span className="font-semibold text-green-600">
+              <span className="font-semibold text-emerald-100">
                 Total Nodes: {count}
               </span>
             </div>
@@ -75,7 +111,9 @@ const Home = () => {
                   <div className="flex items-center justify-center py-20">
                     <div className="text-center">
                       <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mx-auto mb-4"></div>
-                      <p className="text-gray-600 font-medium">Loading hierarchy...</p>
+                      <p className="text-gray-600 font-medium">
+                        Loading hierarchy...
+                      </p>
                     </div>
                   </div>
                 ) : hierarchyData ? (
@@ -85,17 +123,34 @@ const Home = () => {
                     onDelete={handleDeleteClick}
                     onUpdate={reloadHierarchy}
                     onAddHierarchy={handleAddClick}
+                    onSearch={handleSearch}
+                    searchTerm={searchTerm}
+                    searchResults={searchResults}
+                    totalNodes={count}
                   />
                 ) : (
                   <div className="text-center py-20">
                     <div className="mx-auto w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
-                      <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                      <svg
+                        className="w-10 h-10 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        />
                       </svg>
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-700 mb-3">No Hierarchy Data</h3>
+                    <h3 className="text-2xl font-bold text-gray-700 mb-3">
+                      No Hierarchy Data
+                    </h3>
                     <p className="text-gray-500 mb-8 max-w-md mx-auto">
-                      Get started by uploading a JSON/XML file or creating your first hierarchy structure.
+                      Get started by uploading a JSON/XML file or creating your
+                      first hierarchy structure.
                     </p>
                     <button
                       onClick={() => handleAddClick(null)}
@@ -111,16 +166,33 @@ const Home = () => {
 
           {/* Sidebar - File Operations */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden  top-8">
-              <div className="bg-green-600 p-6">
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden sticky top-8">
+              <div className="bg-gradient-to-r from-emerald-500 to-green-600 p-6">
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
                   </svg>
                   File Operations
                 </h3>
-                <p className="text-emerald-100 mt-1">Import and export your data</p>
+                <p className="text-emerald-100 mt-1">
+                  Import and export your data
+                </p>
               </div>
               <div className="p-6">
                 <FileUploader onUploadSuccess={reloadHierarchy} />
@@ -132,19 +204,37 @@ const Home = () => {
               <div className="mt-6 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                 <div className="p-6">
                   <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    <svg
+                      className="w-5 h-5 text-emerald-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                      />
                     </svg>
                     Quick Stats
                   </h4>
                   <div className="grid grid-cols-1 gap-3">
                     <div className="bg-gradient-to-r from-emerald-50 to-green-50 p-4 rounded-lg border border-emerald-100">
-                      <div className="text-2xl font-bold text-emerald-700">{count}</div>
-                      <div className="text-sm text-emerald-600">Total Nodes</div>
+                      <div className="text-2xl font-bold text-emerald-700">
+                        {count}
+                      </div>
+                      <div className="text-sm text-emerald-600">
+                        Total Nodes
+                      </div>
                     </div>
                     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100">
-                      <div className="text-2xl font-bold text-blue-700">{hierarchyData?.children?.length || 0}</div>
-                      <div className="text-sm text-blue-600">Root Hierarchies</div>
+                      <div className="text-2xl font-bold text-blue-700">
+                        {hierarchyData?.children?.length || 0}
+                      </div>
+                      <div className="text-sm text-blue-600">
+                        Root Hierarchies
+                      </div>
                     </div>
                   </div>
                 </div>
