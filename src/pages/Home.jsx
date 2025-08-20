@@ -15,6 +15,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState(0);
+  const [filteredHierarchyData, setFilteredHierarchyData] = useState(null);
 
   // Function to search through hierarchy and count matches
   const searchInHierarchy = (node, term) => {
@@ -34,9 +35,40 @@ const Home = () => {
     return matches;
   };
 
+  // Function to filter hierarchy based on search term - shows matching nodes with their children only
+  const filterHierarchy = (node, term) => {
+    if (!term) return node;
+
+    const isMatch = node.name.toLowerCase().includes(term.toLowerCase());
+
+    // If this node matches, return it with ALL its children (complete subtree)
+    if (isMatch) {
+      return {
+        ...node,
+        children: node.children || [], // Keep all children intact
+      };
+    }
+
+    // If this node doesn't match, check its children
+    const matchingChildren = [];
+    if (node.children) {
+      node.children.forEach((child) => {
+        const filteredChild = filterHierarchy(child, term);
+        if (filteredChild) {
+          matchingChildren.push(filteredChild);
+        }
+      });
+    }
+
+    // Only return matching children (without the parent)
+    return matchingChildren.length > 0 ? matchingChildren : null;
+  };
+
   const handleSearch = (term) => {
     setSearchTerm(term);
-    if (hierarchyData && term) {
+
+    if (hierarchyData && term.trim()) {
+      // Count total matches
       let totalMatches = 0;
       if (hierarchyData.children) {
         hierarchyData.children.forEach((child) => {
@@ -44,8 +76,32 @@ const Home = () => {
         });
       }
       setSearchResults(totalMatches);
+
+      // Filter the hierarchy to show only matching nodes with their children
+      const filteredChildren = [];
+      if (hierarchyData.children) {
+        hierarchyData.children.forEach((child) => {
+          const result = filterHierarchy(child, term);
+          if (result) {
+            // If result is an array (matching children), add them individually
+            if (Array.isArray(result)) {
+              filteredChildren.push(...result);
+            } else {
+              // If result is a single node, add it
+              filteredChildren.push(result);
+            }
+          }
+        });
+      }
+
+      setFilteredHierarchyData({
+        ...hierarchyData,
+        children: filteredChildren,
+      });
     } else {
+      // Show all data when no search term
       setSearchResults(0);
+      setFilteredHierarchyData(hierarchyData);
     }
   };
 
@@ -54,6 +110,7 @@ const Home = () => {
       setLoading(true);
       const data = await fetchHierarchyData();
       setHierarchyData(data.tree);
+      setFilteredHierarchyData(data.tree);
       setCount(data.totalNodes);
     } catch (error) {
       const errMsg = error.response?.data || "Unexpected error occurred.";
@@ -80,7 +137,7 @@ const Home = () => {
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-emerald-50 to-green-50">
       {/* Header with gradient background */}
-      <div className="bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700 shadow-xl">
+      <div className="bg-green-600 shadow-xl">
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="text-center text-white">
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
@@ -92,7 +149,7 @@ const Home = () => {
             </p>
             <div className="inline-flex items-center gap-2 bg-white bg-opacity-20 backdrop-blur-sm rounded-full px-6 py-3">
               <div className="w-2 h-2 bg-emerald-300 rounded-full animate-pulse"></div>
-              <span className="font-semibold text-emerald-100">
+              <span className="font-semibold text-green-700">
                 Total Nodes: {count}
               </span>
             </div>
@@ -116,9 +173,9 @@ const Home = () => {
                       </p>
                     </div>
                   </div>
-                ) : hierarchyData ? (
+                ) : filteredHierarchyData ? (
                   <HierarchyViewer
-                    data={hierarchyData}
+                    data={filteredHierarchyData}
                     onAdd={handleAddClick}
                     onDelete={handleDeleteClick}
                     onUpdate={reloadHierarchy}
@@ -154,7 +211,7 @@ const Home = () => {
                     </p>
                     <button
                       onClick={() => handleAddClick(null)}
-                      className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-medium py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                      className="bg-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-medium py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
                     >
                       Create Your First Hierarchy
                     </button>
@@ -167,7 +224,7 @@ const Home = () => {
           {/* Sidebar - File Operations */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden sticky top-8">
-              <div className="bg-gradient-to-r from-emerald-500 to-green-600 p-6">
+              <div className="bg-green-600 p-6">
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
                   <svg
                     className="w-6 h-6"
@@ -200,7 +257,7 @@ const Home = () => {
             </div>
 
             {/* Quick Stats Card */}
-            {hierarchyData && (
+            {filteredHierarchyData && (
               <div className="mt-6 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                 <div className="p-6">
                   <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
@@ -230,10 +287,10 @@ const Home = () => {
                     </div>
                     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100">
                       <div className="text-2xl font-bold text-blue-700">
-                        {hierarchyData?.children?.length || 0}
+                        {filteredHierarchyData?.children?.length || 0}
                       </div>
                       <div className="text-sm text-blue-600">
-                        Root Hierarchies
+                        {searchTerm ? "Matching Nodes" : "Root Hierarchies"}
                       </div>
                     </div>
                   </div>

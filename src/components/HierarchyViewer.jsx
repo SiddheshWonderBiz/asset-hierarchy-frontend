@@ -48,7 +48,7 @@ const HierarchyViewer = ({
 
         <button
           onClick={() => onAddHierarchy(null)}
-          className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 font-medium flex items-center gap-2"
+          className="bg-green-600 hover:from-emerald-600 hover:to-green-700 text-white py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 font-medium flex items-center gap-2"
         >
           <svg
             className="w-5 h-5"
@@ -91,6 +91,7 @@ const HierarchyViewer = ({
                   isSearchMatch={child.name
                     .toLowerCase()
                     .includes(searchTerm.toLowerCase())}
+                  autoExpand={Boolean(searchTerm)}
                 />
               </div>
             ))}

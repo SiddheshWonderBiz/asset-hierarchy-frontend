@@ -87,11 +87,12 @@ const SearchBar = ({ onSearch, searchResults, totalNodes }) => {
                 <>
                   <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
                   <span className="text-gray-600">
-                    Found{" "}
+                    Showing{" "}
                     <span className="font-semibold text-emerald-600">
                       {searchResults}
                     </span>{" "}
-                    matching node{searchResults !== 1 ? "s" : ""}
+                    matching node{searchResults !== 1 ? "s" : ""} with their
+                    children
                   </span>
                 </>
               ) : (
@@ -101,7 +102,14 @@ const SearchBar = ({ onSearch, searchResults, totalNodes }) => {
                 </>
               )}
             </div>
-            <span className="text-gray-400">of {totalNodes} total nodes</span>
+            <div className="flex items-center gap-2">
+              <span className="text-gray-400">of {totalNodes} total nodes</span>
+              {searchResults > 0 && (
+                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
+                  Children View
+                </span>
+              )}
+            </div>
           </div>
         )}
       </div>
