@@ -223,7 +223,7 @@ const Home = () => {
 
           {/* Sidebar - File Operations */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden sticky top-8">
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden  top-8">
               <div className="bg-green-600 p-6">
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
                   <svg

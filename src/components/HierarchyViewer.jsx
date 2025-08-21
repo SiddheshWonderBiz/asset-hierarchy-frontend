@@ -88,9 +88,9 @@ const HierarchyViewer = ({
                   onDelete={onDelete}
                   onUpdate={onUpdate}
                   searchTerm={searchTerm}
-                  isSearchMatch={child.name
-                    .toLowerCase()
-                    .includes(searchTerm.toLowerCase())}
+                  isSearchMatch={(child?.name?.toLowerCase() || "").includes(
+                    (searchTerm || "").toLowerCase()
+                  )}
                   autoExpand={Boolean(searchTerm)}
                 />
               </div>
