@@ -34,7 +34,7 @@ const NodeItem = ({
       regex.test(part) ? (
         <span
           key={index}
-          className="bg-yellow-200 text-yellow-800 px-1 rounded font-semibold"
+          className="bg-green-200 text-green-800 px-1 rounded font-semibold"
         >
           {part}
         </span>
@@ -69,13 +69,7 @@ const NodeItem = ({
             )}
 
             <div className="flex items-center gap-3 flex-1">
-              <div
-                className={`w-3 h-3 rounded-full ${
-                  isSearchMatch
-                    ? "bg-gradient-to-r from-yellow-400 to-orange-500"
-                    : "bg-gradient-to-r from-emerald-400 to-green-500"
-                }`}
-              ></div>
+              
               <span className="font-medium text-gray-800 text-lg">
                 {highlightSearchTerm(node.name, searchTerm)}
               </span>
@@ -103,6 +97,7 @@ const NodeItem = ({
                   Match
                 </span>
               )} */}
+              
             </div>
           </div>
 
