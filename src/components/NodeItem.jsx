@@ -24,25 +24,27 @@ const NodeItem = ({
   }, [searchTerm, hasChildren, autoExpand]);
 
   // Function to highlight search term in node name
-  const highlightSearchTerm = (text, searchTerm) => {
-    if (!searchTerm) return text;
+const highlightSearchTerm = (text, searchTerm) => {
+  if (!text) return null; // avoid crash if name is missing
+  if (!searchTerm) return text;
 
-    const regex = new RegExp(`(${searchTerm})`, "gi");
-    const parts = text.split(regex);
+  const regex = new RegExp(`(${searchTerm})`, "gi");
+  const parts = text.split(regex);
 
-    return parts.map((part, index) =>
-      regex.test(part) ? (
-        <span
-          key={index}
-          className="bg-green-200 text-green-800 px-1 rounded font-semibold"
-        >
-          {part}
-        </span>
-      ) : (
-        part
-      )
-    );
-  };
+  return parts.map((part, index) =>
+    regex.test(part) ? (
+      <span
+        key={index}
+        className="bg-green-200 text-green-800 px-1 rounded font-semibold"
+      >
+        {part}
+      </span>
+    ) : (
+      part
+    )
+  );
+};
+
 
   return (
     <div className="group">

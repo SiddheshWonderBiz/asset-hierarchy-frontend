@@ -36,33 +36,32 @@ const Home = () => {
   };
 
   // Function to filter hierarchy based on search term - shows matching nodes with their children only
-  const filterHierarchy = (node, term) => {
-    if (!term) return node;
+const filterHierarchy = (node, term) => {
+  if (!term) return node;
 
-    const isMatch = node.name.toLowerCase().includes(term.toLowerCase());
+  const isMatch = node.name?.toLowerCase().includes(term.toLowerCase());
 
-    // If this node matches, return it with ALL its children (complete subtree)
-    if (isMatch) {
-      return {
-        ...node,
-        children: node.children || [], // Keep all children intact
-      };
-    }
+  const matchingChildren = [];
+  if (node.children) {
+    node.children.forEach((child) => {
+      const filteredChild = filterHierarchy(child, term);
+      if (filteredChild) {
+        matchingChildren.push(filteredChild);
+      }
+    });
+  }
 
-    // If this node doesn't match, check its children
-    const matchingChildren = [];
-    if (node.children) {
-      node.children.forEach((child) => {
-        const filteredChild = filterHierarchy(child, term);
-        if (filteredChild) {
-          matchingChildren.push(filteredChild);
-        }
-      });
-    }
+  // ✅ If node matches OR has matching children, keep it
+  if (isMatch || matchingChildren.length > 0) {
+    return {
+      ...node,
+      children: matchingChildren,
+    };
+  }
 
-    // Only return matching children (without the parent)
-    return matchingChildren.length > 0 ? matchingChildren : null;
-  };
+  // ❌ Otherwise drop it
+  return null;
+};
 
   const handleSearch = (term) => {
     setSearchTerm(term);
