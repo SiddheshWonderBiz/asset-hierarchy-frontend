@@ -3,7 +3,7 @@ import FileUploader from "../components/FileUploader";
 import HierarchyViewer from "../components/HierarchyViewer";
 import AddNodeModal from "../components/AddNodeModal.jsx";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal.jsx";
-import { fetchHierarchyData, uploadHierarchyData } from "../utils/api.js";
+import { fetchHierarchyData, updateNode, uploadHierarchyData } from "../utils/api.js";
 import { toast } from "react-toastify";
 
 const Home = () => {
@@ -103,6 +103,16 @@ const filterHierarchy = (node, term) => {
       setFilteredHierarchyData(hierarchyData);
     }
   };
+  const handleUpdateNode = async (id, newName) => {
+  try {
+    await updateNode(id , newName); // calls your update API
+    toast.success("Node renamed");
+    reloadHierarchy(); // refresh tree
+  } catch (error) {
+    toast.error(error.response?.data || "Rename failed");
+  }
+};
+
 
   const reloadHierarchy = async () => {
     try {
@@ -177,7 +187,7 @@ const filterHierarchy = (node, term) => {
                     data={filteredHierarchyData}
                     onAdd={handleAddClick}
                     onDelete={handleDeleteClick}
-                    onUpdate={reloadHierarchy}
+                    onUpdate={handleUpdateNode}
                     onAddHierarchy={handleAddClick}
                     onSearch={handleSearch}
                     searchTerm={searchTerm}

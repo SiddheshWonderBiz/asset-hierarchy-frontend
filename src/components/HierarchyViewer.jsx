@@ -76,7 +76,7 @@ const HierarchyViewer = ({
 
       <div className="bg-gray-50 rounded-xl p-6">
         {data?.children?.length > 0 ? (
-          <div className="space-y-2">
+          <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
             {data.children.map((child, index) => (
               <div key={child.id || child.name || index} className="relative">
                 {index > 0 && (

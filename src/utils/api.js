@@ -131,3 +131,33 @@ export const downloadHierarchyData = async () => {
   const blob = await response.blob();
   return blob;
 };
+
+export const updateNode = async (Id, Name) => {
+  try {
+    const response = await fetch(`/api/Hierarchy/update/${Id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(Name), // send raw string e.g. "Pump"
+    });
+
+    if (!response.ok) {
+      let errorMessage = `Update node failed: ${response.status}`;
+      try {
+        const errData = await response.text(); // backend sends string
+        if (errData) {
+          errorMessage = errData;
+        }
+      } catch {
+        // ignore if no text
+      }
+      throw new Error(errorMessage);
+    }
+
+    return await response.text(); // get success message
+  } catch (error) {
+    console.error("Error updating node:", error);
+    throw error;
+  }
+};

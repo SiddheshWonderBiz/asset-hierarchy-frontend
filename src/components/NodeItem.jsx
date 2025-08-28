@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { IoChevronForward, IoChevronDown } from "react-icons/io5";
 import { AiOutlinePlusCircle, AiOutlineDelete } from "react-icons/ai";
+import { updateNode } from "../utils/api";
 
 const NodeItem = ({
   node,
@@ -12,9 +13,34 @@ const NodeItem = ({
   autoExpand = false,
 }) => {
   const [isExpanded, setIsExpanded] = useState(autoExpand);
+  const [isEditing, setIsEditing] = useState(false);
+  const [newName, setNewName] = useState(node.name);
+
   const hasChildren = node.children && node.children.length > 0;
 
-  // Auto-expand when search term is present and node has children
+  const handleDoubleClick = () => {
+    setIsEditing(true);
+    setNewName(node.name);
+  };
+
+  const handleBlur = async () => {
+    if (newName.trim() && newName !== node.name) {
+      await updateNode(node.id, newName);
+      onUpdate && onUpdate(node.id, newName); //  tell parent to refresh
+    }
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleBlur();
+    } else if (e.key === "Escape") {
+      setNewName(node.name);
+      setIsEditing(false);
+    }
+  };
+
+  // Auto-expand when searching
   React.useEffect(() => {
     if (searchTerm && hasChildren) {
       setIsExpanded(true);
@@ -23,28 +49,27 @@ const NodeItem = ({
     }
   }, [searchTerm, hasChildren, autoExpand]);
 
-  // Function to highlight search term in node name
-const highlightSearchTerm = (text, searchTerm) => {
-  if (!text) return null; // avoid crash if name is missing
-  if (!searchTerm) return text;
+  // Highlight search term
+  const highlightSearchTerm = (text, searchTerm) => {
+    if (!text) return null;
+    if (!searchTerm) return text;
 
-  const regex = new RegExp(`(${searchTerm})`, "gi");
-  const parts = text.split(regex);
+    const regex = new RegExp(`(${searchTerm})`, "gi");
+    const parts = text.split(regex);
 
-  return parts.map((part, index) =>
-    regex.test(part) ? (
-      <span
-        key={index}
-        className="bg-green-200 text-green-800 px-1 rounded font-semibold"
-      >
-        {part}
-      </span>
-    ) : (
-      part
-    )
-  );
-};
-
+    return parts.map((part, index) =>
+      regex.test(part) ? (
+        <span
+          key={index}
+          className="bg-green-200 text-green-800 px-1 rounded font-semibold"
+        >
+          {part}
+        </span>
+      ) : (
+        part
+      )
+    );
+  };
 
   return (
     <div className="group">
@@ -70,36 +95,32 @@ const highlightSearchTerm = (text, searchTerm) => {
               </button>
             )}
 
-            <div className="flex items-center gap-3 flex-1">
-              
-              <span className="font-medium text-gray-800 text-lg">
-                {highlightSearchTerm(node.name, searchTerm)}
-              </span>
+            <div
+              className="flex items-center gap-3 flex-1"
+              onDoubleClick={handleDoubleClick}
+            >
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  onBlur={handleBlur}
+                  onKeyDown={handleKeyDown}
+                  autoFocus
+                  className="border px-2 py-1 rounded w-full text-gray-800 text-lg"
+                />
+              ) : (
+                <span className="font-medium text-gray-800 text-lg">
+                  {highlightSearchTerm(node.name, searchTerm)}
+                </span>
+              )}
+
               {hasChildren && (
                 <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-medium">
                   {node.children.length}{" "}
                   {node.children.length === 1 ? "child" : "children"}
                 </span>
               )}
-              {/* {isSearchMatch && (
-                <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-medium flex items-center gap-1">
-                  <svg
-                    className="w-3 h-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                  Match
-                </span>
-              )} */}
-              
             </div>
           </div>
 
