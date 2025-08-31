@@ -2,13 +2,19 @@ import React, { useEffect, useState } from "react";
 import FileUploader from "../components/FileUploader";
 import HierarchyViewer from "../components/HierarchyViewer";
 import AddNodeModal from "../components/AddNodeModal.jsx";
+import AddSignalModal from "../components/AddSignalModal.jsx";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal.jsx";
-import { fetchHierarchyData, updateNode, uploadHierarchyData } from "../utils/api.js";
+import {
+  fetchHierarchyData,
+  updateNode,
+  uploadHierarchyData,
+} from "../utils/api.js";
 import { toast } from "react-toastify";
 
 const Home = () => {
   const [hierarchyData, setHierarchyData] = useState(null);
   const [showAddNodeModal, setShowAddNodeModal] = useState(false);
+  const [showAddSignalModal, setShowAddSignalModal] = useState(false);
   const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const [selectedNode, setSelectedNode] = useState(null);
   const [count, setCount] = useState(0);
@@ -36,32 +42,32 @@ const Home = () => {
   };
 
   // Function to filter hierarchy based on search term - shows matching nodes with their children only
-const filterHierarchy = (node, term) => {
-  if (!term) return node;
+  const filterHierarchy = (node, term) => {
+    if (!term) return node;
 
-  const isMatch = node.name?.toLowerCase().includes(term.toLowerCase());
+    const isMatch = node.name?.toLowerCase().includes(term.toLowerCase());
 
-  const matchingChildren = [];
-  if (node.children) {
-    node.children.forEach((child) => {
-      const filteredChild = filterHierarchy(child, term);
-      if (filteredChild) {
-        matchingChildren.push(filteredChild);
-      }
-    });
-  }
+    const matchingChildren = [];
+    if (node.children) {
+      node.children.forEach((child) => {
+        const filteredChild = filterHierarchy(child, term);
+        if (filteredChild) {
+          matchingChildren.push(filteredChild);
+        }
+      });
+    }
 
-  // ✅ If node matches OR has matching children, keep it
-  if (isMatch || matchingChildren.length > 0) {
-    return {
-      ...node,
-      children: matchingChildren,
-    };
-  }
+    // ✅ If node matches OR has matching children, keep it
+    if (isMatch || matchingChildren.length > 0) {
+      return {
+        ...node,
+        children: matchingChildren,
+      };
+    }
 
-  // ❌ Otherwise drop it
-  return null;
-};
+    // ❌ Otherwise drop it
+    return null;
+  };
 
   const handleSearch = (term) => {
     setSearchTerm(term);
@@ -103,16 +109,16 @@ const filterHierarchy = (node, term) => {
       setFilteredHierarchyData(hierarchyData);
     }
   };
-  const handleUpdateNode = async (id, newName) => {
-  try {
-    await updateNode(id , newName); // calls your update API
-    toast.success("Node renamed");
-    reloadHierarchy(); // refresh tree
-  } catch (error) {
-    toast.error(error.response?.data || "Rename failed");
-  }
-};
 
+  const handleUpdateNode = async (id, newName) => {
+    try {
+      await updateNode(id, newName); // calls your update API
+      toast.success("Node renamed");
+      reloadHierarchy(); // refresh tree
+    } catch (error) {
+      toast.error(error.response?.data || "Rename failed");
+    }
+  };
 
   const reloadHierarchy = async () => {
     try {
@@ -137,6 +143,17 @@ const filterHierarchy = (node, term) => {
   const handleDeleteClick = (node) => {
     setSelectedNode(node);
     setShowConfirmDeleteModal(true);
+  };
+
+  // New handler for adding signals
+  const handleAddSignalClick = (node) => {
+    setSelectedNode(node);
+    setShowAddSignalModal(true);
+  };
+
+  const handleSignalModalSuccess = () => {
+    // You might want to show a success message or update some state
+    toast.success("Signal operation completed!");
   };
 
   useEffect(() => {
@@ -189,6 +206,7 @@ const filterHierarchy = (node, term) => {
                     onDelete={handleDeleteClick}
                     onUpdate={handleUpdateNode}
                     onAddHierarchy={handleAddClick}
+                    onAddSignal={handleAddSignalClick}
                     onSearch={handleSearch}
                     searchTerm={searchTerm}
                     searchResults={searchResults}
@@ -319,6 +337,17 @@ const filterHierarchy = (node, term) => {
             setSelectedNode(null);
           }}
           onSuccess={reloadHierarchy}
+        />
+      )}
+
+      {showAddSignalModal && (
+        <AddSignalModal
+          node={selectedNode}
+          onClose={() => {
+            setShowAddSignalModal(false);
+            setSelectedNode(null);
+          }}
+          onSuccess={handleSignalModalSuccess}
         />
       )}
 

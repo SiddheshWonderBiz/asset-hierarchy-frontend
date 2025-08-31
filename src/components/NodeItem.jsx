@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import { IoChevronForward, IoChevronDown } from "react-icons/io5";
 import { AiOutlinePlusCircle, AiOutlineDelete } from "react-icons/ai";
+import { IoSettingsOutline } from "react-icons/io5";
 import { updateNode } from "../utils/api";
+import { useNavigate } from "react-router-dom";
 
 const NodeItem = ({
   node,
   onUpdate,
   onAdd,
   onDelete,
+  onAddSignal,
   searchTerm = "",
   isSearchMatch = false,
   autoExpand = false,
@@ -15,6 +18,7 @@ const NodeItem = ({
   const [isExpanded, setIsExpanded] = useState(autoExpand);
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(node.name);
+  const navigate = useNavigate();
 
   const hasChildren = node.children && node.children.length > 0;
 
@@ -37,6 +41,19 @@ const NodeItem = ({
     } else if (e.key === "Escape") {
       setNewName(node.name);
       setIsEditing(false);
+    }
+  };
+
+  const handleViewSignals = () => {
+    // Navigate to signals page with node info
+    navigate(`/signals/${node.id}`, {
+      state: { nodeInfo: { id: node.id, name: node.name } },
+    });
+  };
+
+  const handleAddSignalClick = () => {
+    if (onAddSignal) {
+      onAddSignal(node);
     }
   };
 
@@ -125,6 +142,37 @@ const NodeItem = ({
           </div>
 
           <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            {/* View/Manage Signals Button */}
+            <button
+              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-2 rounded-lg transition-all duration-200 transform hover:scale-110"
+              onClick={handleViewSignals}
+              title="View/Manage signals"
+            >
+              <IoSettingsOutline size={22} />
+            </button>
+
+            {/* Add Signal Button */}
+            <button
+              className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 p-2 rounded-lg transition-all duration-200 transform hover:scale-110"
+              onClick={handleAddSignalClick}
+              title="Add signal"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+            </button>
+
+            {/* Add Child Node Button */}
             <button
               className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 p-2 rounded-lg transition-all duration-200 transform hover:scale-110"
               onClick={() => onAdd(node)}
@@ -132,6 +180,8 @@ const NodeItem = ({
             >
               <AiOutlinePlusCircle size={22} />
             </button>
+
+            {/* Delete Node Button */}
             <button
               className="text-red-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition-all duration-200 transform hover:scale-110"
               onClick={() => onDelete(node)}
@@ -156,6 +206,7 @@ const NodeItem = ({
                       onUpdate={onUpdate}
                       onAdd={onAdd}
                       onDelete={onDelete}
+                      onAddSignal={onAddSignal}
                       searchTerm={searchTerm}
                       isSearchMatch={child.name
                         .toLowerCase()

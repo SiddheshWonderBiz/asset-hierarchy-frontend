@@ -8,6 +8,7 @@ const HierarchyViewer = ({
   onDelete,
   onUpdate,
   onAddHierarchy,
+  onAddSignal,
   onSearch,
   searchTerm,
   searchResults,
@@ -87,6 +88,7 @@ const HierarchyViewer = ({
                   onAdd={onAdd}
                   onDelete={onDelete}
                   onUpdate={onUpdate}
+                  onAddSignal={onAddSignal}
                   searchTerm={searchTerm}
                   isSearchMatch={(child?.name?.toLowerCase() || "").includes(
                     (searchTerm || "").toLowerCase()

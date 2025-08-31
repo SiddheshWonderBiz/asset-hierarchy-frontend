@@ -161,3 +161,121 @@ export const updateNode = async (Id, Name) => {
     throw error;
   }
 };
+// ====================== SIGNALS API ======================
+
+// Get all signals for an asset
+export const getSignalsByAsset = async (assetId) => {
+    try {
+        const response = await fetch(`/api/Signals/asset/${assetId}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching signals:", error);
+        throw error;
+    }
+};
+
+// Get a specific signal by ID
+export const getSignalById = async (assetId, signalId) => {
+    try {
+        const response = await fetch(`/api/Signals/asset/${assetId}/signals/${signalId}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching signal:", error);
+        throw error;
+    }
+};
+
+// Add a new signal to an asset
+export const addSignal = async (assetId, signalData) => {
+    try {
+        const response = await fetch(`/api/Signals/asset/${assetId}/Addsignal/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(signalData),
+        });
+
+        if (!response.ok) {
+            let errorMessage = `Add signal failed: ${response.status}`;
+            try {
+                const errData = await response.json();
+                if (errData?.error) {
+                    errorMessage = errData.error;
+                }
+            } catch {
+                // ignore parsing errors
+            }
+            throw new Error(errorMessage);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error adding signal:", error);
+        throw error;
+    }
+};
+
+// Update an existing signal
+export const updateSignal = async (assetId, signalId, signalData) => {
+    try {
+        const response = await fetch(`/api/Signals/asset/${assetId}/${signalId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(signalData),
+        });
+
+        if (!response.ok) {
+            let errorMessage = `Update signal failed: ${response.status}`;
+            try {
+                const errData = await response.json();
+                if (errData?.error) {
+                    errorMessage = errData.error;
+                }
+            } catch {
+                // ignore parsing errors
+            }
+            throw new Error(errorMessage);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error updating signal:", error);
+        throw error;
+    }
+};
+
+// Delete a signal
+export const deleteSignal = async (assetId, signalId) => {
+    try {
+        const response = await fetch(`/api/Signals/asset/${assetId}/${signalId}`, {
+            method: 'DELETE',
+        });
+
+        if (!response.ok) {
+            let errorMessage = `Delete signal failed: ${response.status}`;
+            try {
+                const errData = await response.json();
+                if (errData?.error) {
+                    errorMessage = errData.error;
+                }
+            } catch {
+                // ignore parsing errors
+            }
+            throw new Error(errorMessage);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error deleting signal:", error);
+        throw error;
+    }
+};
