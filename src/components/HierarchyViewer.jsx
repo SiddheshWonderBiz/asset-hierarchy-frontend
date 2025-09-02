@@ -2,6 +2,7 @@ import React from "react";
 import NodeItem from "./NodeItem";
 import SearchBar from "./SearchBar";
 
+
 const HierarchyViewer = ({
   data,
   onAdd,
@@ -13,7 +14,9 @@ const HierarchyViewer = ({
   searchTerm,
   searchResults,
   totalNodes,
+  role
 }) => {
+  const isAdmin = role === "Admin";
   return (
     <section className="w-full">
       <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -46,8 +49,7 @@ const HierarchyViewer = ({
             Manage your organizational structure
           </p>
         </div>
-
-        <button
+        {isAdmin &&(<button
           onClick={() => onAddHierarchy(null)}
           className="bg-green-600 hover:from-emerald-600 hover:to-green-700 text-white py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 font-medium flex items-center gap-2"
         >
@@ -65,7 +67,9 @@ const HierarchyViewer = ({
             />
           </svg>
           Add New Hierarchy
-        </button>
+        </button>)}
+        
+
       </div>
 
       {/* Search Bar */}
@@ -85,9 +89,9 @@ const HierarchyViewer = ({
                 )}
                 <NodeItem
                   node={child}
-                  onAdd={onAdd}
-                  onDelete={onDelete}
-                  onUpdate={onUpdate}
+                  onAdd={isAdmin ? onAdd : undefined} // ✅ disable if not Admin
+                  onDelete={isAdmin ? onDelete : undefined}
+                  onUpdate={isAdmin ? onUpdate : undefined}
                   onAddSignal={onAddSignal}
                   searchTerm={searchTerm}
                   isSearchMatch={(child?.name?.toLowerCase() || "").includes(
@@ -121,12 +125,13 @@ const HierarchyViewer = ({
             <p className="text-gray-500 text-sm mb-6">
               Upload a JSON/XML file or create a new hierarchy to get started.
             </p>
+            {isAdmin && (
             <button
               onClick={() => onAddHierarchy(null)}
               className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white py-2 px-4 rounded-lg shadow transition-all duration-200 transform hover:scale-105 font-medium"
             >
               Create First Hierarchy
-            </button>
+            </button>)}
           </div>
         )}
       </div>

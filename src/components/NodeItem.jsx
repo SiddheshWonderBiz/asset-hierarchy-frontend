@@ -22,7 +22,9 @@ const NodeItem = ({
 
   const hasChildren = node.children && node.children.length > 0;
 
+  
   const handleDoubleClick = () => {
+    if (!onUpdate) return;
     setIsEditing(true);
     setNewName(node.name);
   };
@@ -173,22 +175,24 @@ const NodeItem = ({
             </button>
 
             {/* Add Child Node Button */}
-            <button
+            {onAdd && (<button
               className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 p-2 rounded-lg transition-all duration-200 transform hover:scale-110"
               onClick={() => onAdd(node)}
               title="Add child node"
             >
               <AiOutlinePlusCircle size={22} />
-            </button>
+            </button>)}
+            
 
             {/* Delete Node Button */}
-            <button
+            {onDelete && (<button
               className="text-red-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition-all duration-200 transform hover:scale-110"
               onClick={() => onDelete(node)}
               title="Delete node"
             >
               <AiOutlineDelete size={22} />
-            </button>
+            </button>)}
+            
           </div>
         </div>
 

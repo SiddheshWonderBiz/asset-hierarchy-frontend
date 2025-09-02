@@ -4,11 +4,7 @@ import HierarchyViewer from "../components/HierarchyViewer";
 import AddNodeModal from "../components/AddNodeModal.jsx";
 import AddSignalModal from "../components/AddSignalModal.jsx";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal.jsx";
-import {
-  fetchHierarchyData,
-  updateNode,
-  uploadHierarchyData,
-} from "../utils/api.js";
+import { fetchHierarchyData, updateNode, userRole } from "../utils/api.js";
 import { toast } from "react-toastify";
 
 const Home = () => {
@@ -22,7 +18,27 @@ const Home = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState(0);
   const [filteredHierarchyData, setFilteredHierarchyData] = useState(null);
+  const [role, setRole] = useState(null);
 
+  useEffect(() => {
+    setRole(userRole()); // decode from JWT
+    reloadHierarchy();
+  }, []);
+
+  const reloadHierarchy = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchHierarchyData();
+      setHierarchyData(data.tree);
+      setFilteredHierarchyData(data.tree);
+      setCount(data.totalNodes);
+    } catch (error) {
+      const errMsg = error.response?.data || "Unexpected error occurred.";
+      toast.error(`Error reloading: ${errMsg}`);
+    } finally {
+      setLoading(false);
+    }
+  };
   // Function to search through hierarchy and count matches
   const searchInHierarchy = (node, term) => {
     if (!term) return 0;
@@ -42,36 +58,36 @@ const Home = () => {
   };
 
   // Function to filter hierarchy based on search term - shows matching nodes with their children only
-   const filterHierarchy = (node, term) => {
-  if (!term) return node;
+  const filterHierarchy = (node, term) => {
+    if (!term) return node;
 
-  const isMatch = node.name?.toLowerCase().includes(term.toLowerCase());
+    const isMatch = node.name?.toLowerCase().includes(term.toLowerCase());
 
-  // If parent matches → return full node (with all children intact)
-  if (isMatch) {
-    return { ...node }; // keep all children untouched
-  }
+    // If parent matches → return full node (with all children intact)
+    if (isMatch) {
+      return { ...node }; // keep all children untouched
+    }
 
-  // Otherwise → check children recursively
-  const matchingChildren = [];
-  if (node.children) {
-    node.children.forEach((child) => {
-      const filteredChild = filterHierarchy(child, term);
-      if (filteredChild) {
-        matchingChildren.push(filteredChild);
-      }
-    });
-  }
+    // Otherwise → check children recursively
+    const matchingChildren = [];
+    if (node.children) {
+      node.children.forEach((child) => {
+        const filteredChild = filterHierarchy(child, term);
+        if (filteredChild) {
+          matchingChildren.push(filteredChild);
+        }
+      });
+    }
 
-  // If children match, keep them
-  if (matchingChildren.length > 0) {
-    return { ...node, children: matchingChildren };
-  }
+    // If children match, keep them
+    if (matchingChildren.length > 0) {
+      return { ...node, children: matchingChildren };
+    }
 
-  // No match at all → drop
-  return null;
-};
-
+    // No match at all → drop
+    return null;
+  };
+  
   const handleSearch = (term) => {
     setSearchTerm(term);
 
@@ -114,6 +130,10 @@ const Home = () => {
   };
 
   const handleUpdateNode = async (id, newName) => {
+    if (role !== "Admin") {
+      toast.error("Only Admins can rename nodes.");
+      return;
+    }
     try {
       await updateNode(id, newName); // calls your update API
       toast.success("Node renamed");
@@ -123,27 +143,21 @@ const Home = () => {
     }
   };
 
-  const reloadHierarchy = async () => {
-    try {
-      setLoading(true);
-      const data = await fetchHierarchyData();
-      setHierarchyData(data.tree);
-      setFilteredHierarchyData(data.tree);
-      setCount(data.totalNodes);
-    } catch (error) {
-      const errMsg = error.response?.data || "Unexpected error occurred.";
-      toast.error(`Error reloading: ${errMsg}`);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleAddClick = (node) => {
+    if (role !== "Admin") {
+      toast.error("Only Admins can add nodes.");
+      return;
+    }
     setSelectedNode(node);
     setShowAddNodeModal(true);
   };
 
   const handleDeleteClick = (node) => {
+    if (role !== "Admin") {
+      toast.error("Only Admins can delete nodes.");
+      return;
+    }
     setSelectedNode(node);
     setShowConfirmDeleteModal(true);
   };
@@ -214,6 +228,7 @@ const Home = () => {
                     searchTerm={searchTerm}
                     searchResults={searchResults}
                     totalNodes={count}
+                    role={role}
                   />
                 ) : (
                   <div className="text-center py-20">
@@ -239,12 +254,13 @@ const Home = () => {
                       Get started by uploading a JSON/XML file or creating your
                       first hierarchy structure.
                     </p>
-                    <button
+                    {role === "Admin" && (<button
                       onClick={() => handleAddClick(null)}
                       className="bg-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-medium py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
                     >
                       Create Your First Hierarchy
-                    </button>
+                    </button>)}
+                    
                   </div>
                 )}
               </div>
