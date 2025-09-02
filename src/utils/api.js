@@ -1,3 +1,4 @@
+import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
 // ------------------ Auth Token Helpers ------------------
@@ -7,16 +8,12 @@ export const setAuthToken = (token) => {
   } else {
     console.error("Invalid token format:", token);
   }
-
-  console.log("Stored token :))))))))))))))", localStorage.getItem("authToken"));
 };
 
-export const getAuthToken = () => {
-  return localStorage.getItem('authToken');
-};
+export const getAuthToken = () => localStorage.getItem("authToken");
 
 export const removeAuthToken = () => {
-  localStorage.removeItem('authToken');
+  localStorage.removeItem("authToken");
 };
 
 export const getUserFromToken = () => {
@@ -32,11 +29,9 @@ export const getUserFromToken = () => {
 export const isTokenExpired = () => {
   const token = getAuthToken();
   if (!token) return true;
-  
   try {
     const decoded = jwtDecode(token);
-    const currentTime = Date.now() / 1000;
-    return decoded.exp < currentTime;
+    return decoded.exp < Date.now() / 1000;
   } catch {
     return true;
   }
@@ -45,98 +40,48 @@ export const isTokenExpired = () => {
 export const userRole = () => {
   const user = getUserFromToken();
   if (!user) return null;
-  
-  // .NET JWT uses full claim URIs
-  return user["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || 
-         user.role || 
-         null;
+  return (
+    user.role ||
+    user["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] ||
+    null
+  );
 };
 
-// Debug function to help troubleshoot
-export const debugToken = () => {
+// ------------------ Axios Instance ------------------
+const axiosInstance = axios.create({
+  baseURL: "/api",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  withCredentials: true,
+});
+
+// Add interceptor to attach token for hierarchy endpoints
+axiosInstance.interceptors.request.use((config) => {
   const token = getAuthToken();
-  console.log("=== TOKEN DEBUG ===");
-  console.log("Token exists:", !!token);
-  
-  if (!token) {
-    console.log("No token found - user needs to login");
-    return;
+  if (
+    token &&
+    config.url?.startsWith("/Hierarchy") &&
+    config.url !== "/Hierarchy"
+  ) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  
-  console.log("Token expired:", isTokenExpired());
-  
-  try {
-    const decoded = jwtDecode(token);
-    console.log("Full token payload:", decoded);
-    console.log("Username:", decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] || decoded.name);
-    console.log("Role:", decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || decoded.role);
-    console.log("Expires:", new Date(decoded.exp * 1000));
-  } catch (error) {
-    console.log("Invalid token:", error);
-  }
-};
-
-// ------------------ Auth Fetch Wrapper ------------------
-const authFetch = async (url, options = {}) => {
-  const token = getAuthToken();
-  
-  // Check if token exists
-  if (!token) {
-    throw new Error('No authentication token - please login');
-  }
-  
-  // Check if token is expired
-  if (isTokenExpired()) {
-    removeAuthToken();
-    throw new Error('Token expired - please login again');
-  }
-  
-  const headers = {
-    ...options.headers,
-    Authorization: `Bearer ${token}`,
-  };
-
-  console.log("Auth header:", headers.Authorization);
-
-  const response = await fetch(url, { ...options, headers });
-
-  if (response.status === 401) {
-    // removeAuthToken();
-    throw new Error('Unauthorized - please login again');
-  }
-
-  return response;
-};
+  console.log("configgggggggggggggg",config);
+  return config;
+});
 
 // ------------------ Login ------------------
 export const login = async (username, password) => {
   try {
-    const response = await fetch('/api/Auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
+    const { data } = await axiosInstance.post("/Auth/login", {
+      username,
+      password,
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || 'Login failed');
-    }
-
-    const data = await response.json();
-    console.log("Login response data:", data);
-    console.log("this is token",data.token);
     setAuthToken(data.token);
-
-    console.log("Login successful. User role:", data.role);
-    
-    // Debug the token immediately after login
     setTimeout(() => debugToken(), 100);
-    
     return data;
   } catch (error) {
-    console.error('Login error:', error);
+    console.error("Login error:", error.response?.data || error.message);
     throw error;
   }
 };
@@ -144,310 +89,192 @@ export const login = async (username, password) => {
 // ------------------ Signup ------------------
 export const signup = async (username, password) => {
   try {
-    const response = await fetch('/api/Auth/signup', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password, role: "Viewer" }),
+    const { data } = await axiosInstance.post("/Auth/signup", {
+      username,
+      password,
+      role: "Viewer",
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || 'Signup failed');
-    }
-
-    const data = await response.json();
     return data.message;
   } catch (error) {
-    console.error('Signup error:', error);
+    console.error("Signup error:", error.response?.data || error.message);
     throw error;
   }
 };
 
-// ====================== HIERARCHY API ======================
-
+// ------------------ HIERARCHY API ------------------
 export const fetchHierarchyData = async () => {
   try {
-    const response = await fetch('/api/Hierarchy',{
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return await response.json();
+    const { data } = await axiosInstance.get("/Hierarchy");
+    return data;
   } catch (error) {
-    console.error("Error fetching hierarchy data:", error);
+    console.error(
+      "Error fetching hierarchy data:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 };
 
 export const addNode = async (parentId, newNode) => {
   try {
-    const response = await authFetch(`/api/Hierarchy/add?parentId=${parentId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newNode),
-    });
-
-    if (!response.ok) {
-      let errorMessage = `Add node failed: ${response.status}`;
-      try {
-        const errData = await response.json();
-        if (errData?.error) {
-          errorMessage = errData.error;
-        }
-      } catch {
-        // ignore parsing errors
-      }
-      throw new Error(errorMessage);
-    }
-
-    return await response.json();
+    const { data } = await axiosInstance.post(
+      `/Hierarchy/add?parentId=${parentId}`,
+      newNode
+    );
+    return data;
   } catch (error) {
-    console.error("Error adding node:", error);
+    console.error("Error adding node:", error.response?.data || error.message);
     throw error;
   }
 };
 
 export const addHierarchy = async (newHierarchy) => {
   try {
-    const res = await authFetch("/api/Hierarchy/addhierarchy", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newHierarchy),
-    });
-    
-    if (!res.ok) {
-      let errorMessage = `Add hierarchy failed: ${res.status}`;
-      try {
-        const errData = await res.json();
-        if (errData?.error) {
-          errorMessage = errData.error;
-        }
-      } catch {
-        // ignore parsing errors
-      }
-      throw new Error(errorMessage);
-    }
-    
-    return await res.json();
+    const { data } = await axiosInstance.post(
+      "/Hierarchy/addhierarchy",
+      newHierarchy
+    );
+    return data;
   } catch (error) {
-    console.error("Error adding hierarchy:", error);
+    console.error(
+      "Error adding hierarchy:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 };
 
 export const deleteNode = async (nodeId) => {
   try {
-    const response = await authFetch(`/api/Hierarchy/remove/${nodeId}`, {
-      method: 'DELETE',
-    });
-
-    if (!response.ok) {
-      let errorMessage = `Delete node failed: ${response.status}`;
-      try {
-        const errData = await response.json();
-        if (errData?.error) {
-          errorMessage = errData.error;
-        }
-      } catch {
-        // ignore parsing errors
-      }
-      throw new Error(errorMessage);
-    }
-
-    return await response.json();
+    const { data } = await axiosInstance.delete(`/Hierarchy/remove/${nodeId}`);
+    return data;
   } catch (error) {
-    console.error("Error deleting node:", error);
+    console.error(
+      "Error deleting node:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 };
 
-export async function uploadHierarchyData(file) {
-  const formData = new FormData();
-  formData.append("file", file);
+// export const uploadHierarchyData = async (file) => {
+//   try {
+//     const formData = new FormData();
+//     formData.append("file", file);
+//     const { data } = await axiosInstance.post("/Hierarchy/upload", formData, {
+//       headers: { "Content-Type": "multipart/form-data" },
+//     });
+//     return data;
+//   } catch (error) {
+//     console.error("Upload error:", error.response?.data || error.message);
+//     throw error;
+//   }
+// };
+export const uploadHierarchyData = async (file) => {
+  try {
+    console.log("1");
+    const formData = new FormData();
+    formData.append("file", file);
+    console.log("2");
 
-  const response = await authFetch("/api/Hierarchy/upload", {
-    method: "POST",
-    body: formData,
-  });
+    const token = getAuthToken();
+    console.log("3",token);
 
-  if (!response.ok) {
-    let errorMessage = "Upload failed";
-    try {
-      const errData = await response.json();
-      if (errData?.error) {
-        errorMessage = errData.error;
-      }
-    } catch {
-      // if backend didn't send JSON, keep default
-    }
-    throw new Error(errorMessage);
+    // Do NOT set Content-Type manually, only Authorization
+    const resp = await axios.post("/api/Hierarchy/upload", formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      maxBodyLength: Infinity, // in case file is large
+    });
+        console.log("4",resp);
+
+
+    console.log("Upload successful:", resp.data);
+    return resp.data;
+  } catch (error) {
+    console.error("Upload error:", error.response?.data || error.message);
+    throw error;
   }
+};
 
-  return await response.json();
-}
+
 
 export const downloadHierarchyData = async () => {
-  const response = await authFetch("/api/Hierarchy/download");
-
-  if (!response.ok) {
-    throw new Error("Download failed");
+  try {
+    const { data } = await axiosInstance.get("/Hierarchy/download", {
+      responseType: "blob",
+    });
+    return data;
+  } catch (error) {
+    console.error("Download failed:", error.response?.data || error.message);
+    throw error;
   }
-
-  const blob = await response.blob();
-  return blob;
 };
 
-// FIXED: Now uses authFetch for proper authorization
 export const updateNode = async (Id, Name) => {
   try {
-    const response = await authFetch(`/api/Hierarchy/update/${Id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(Name),
-    });
-
-    if (!response.ok) {
-      let errorMessage = `Update node failed: ${response.status}`;
-      try {
-        const errData = await response.text();
-        if (errData) {
-          errorMessage = errData;
-        }
-      } catch {
-        // ignore if no text
-      }
-      throw new Error(errorMessage);
-    }
-
-    return await response.text();
+    const { data } = await axiosInstance.put(`/Hierarchy/update/${Id}`, Name);
+    return data;
   } catch (error) {
-    console.error("Error updating node:", error);
+    console.error(
+      "Error updating node:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 };
 
-// ====================== SIGNALS API ======================
-
+// ------------------ SIGNALS API (NO AUTH REQUIRED) ------------------
 export const getSignalsByAsset = async (assetId) => {
-  try {
-    const response = await authFetch(`/api/Signals/asset/${assetId}`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching signals:", error);
-    throw error;
-  }
+  const { data } = await axiosInstance.get(`/Signals/asset/${assetId}`);
+  return data;
 };
 
 export const getSignalById = async (assetId, signalId) => {
-  try {
-    const response = await authFetch(`/api/Signals/asset/${assetId}/signals/${signalId}`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching signal:", error);
-    throw error;
-  }
+  const { data } = await axiosInstance.get(
+    `/Signals/asset/${assetId}/signals/${signalId}`
+  );
+  return data;
 };
 
 export const addSignal = async (assetId, signalData) => {
-  try {
-    const response = await authFetch(`/api/Signals/asset/${assetId}/Addsignal/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(signalData),
-    });
-
-    if (!response.ok) {
-      let errorMessage = `Add signal failed: ${response.status}`;
-      try {
-        const errData = await response.json();
-        if (errData?.error) {
-          errorMessage = errData.error;
-        }
-      } catch {
-        // ignore parsing errors
-      }
-      throw new Error(errorMessage);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error adding signal:", error);
-    throw error;
-  }
+  const { data } = await axiosInstance.post(
+    `/Signals/asset/${assetId}/Addsignal`,
+    signalData
+  );
+  return data;
 };
 
 export const updateSignal = async (assetId, signalId, signalData) => {
-  try {
-    const response = await authFetch(`/api/Signals/asset/${assetId}/${signalId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(signalData),
-    });
-
-    if (!response.ok) {
-      let errorMessage = `Update signal failed: ${response.status}`;
-      try {
-        const errData = await response.json();
-        if (errData?.error) {
-          errorMessage = errData.error;
-        }
-      } catch {
-        // ignore parsing errors
-      }
-      throw new Error(errorMessage);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error updating signal:", error);
-    throw error;
-  }
+  const { data } = await axiosInstance.put(
+    `/Signals/asset/${assetId}/${signalId}`,
+    signalData
+  );
+  return data;
 };
 
 export const deleteSignal = async (assetId, signalId) => {
+  const { data } = await axiosInstance.delete(
+    `/Signals/asset/${assetId}/${signalId}`
+  );
+  return data;
+};
+
+// ------------------ Debug Token ------------------
+export const debugToken = () => {
+  const token = getAuthToken();
+  console.log("=== TOKEN DEBUG ===");
+  console.log("Token exists:", !!token);
+  if (!token) return;
+  console.log("Token expired:", isTokenExpired());
   try {
-    const response = await authFetch(`/api/Signals/asset/${assetId}/${signalId}`, {
-      method: 'DELETE',
-    });
-
-    if (!response.ok) {
-      let errorMessage = `Delete signal failed: ${response.status}`;
-      try {
-        const errData = await response.json();
-        if (errData?.error) {
-          errorMessage = errData.error;
-        }
-      } catch {
-        // ignore parsing errors
-      }
-      throw new Error(errorMessage);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error deleting signal:", error);
-    throw error;
+    const decoded = jwtDecode(token);
+    console.log("Full payload:", decoded);
+    console.log("Username:", decoded.username || decoded.name);
+    console.log("Role:", decoded.role);
+    console.log("Expires:", new Date(decoded.exp * 1000));
+  } catch (err) {
+    console.error("Invalid token:", err);
   }
 };
