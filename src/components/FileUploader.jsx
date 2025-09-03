@@ -2,7 +2,8 @@ import React from "react";
 import { uploadHierarchyData, downloadHierarchyData } from "../utils/api";
 import { toast } from "react-toastify";
 
-const FileUploader = ({ onUploadSuccess }) => {
+const FileUploader = ({ onUploadSuccess , role }) => {
+  const isAdmin = role === "Admin";
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -45,14 +46,15 @@ const FileUploader = ({ onUploadSuccess }) => {
           <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4M21 16V4m0 0l-4 4m4-4l4 4M5 20h14"/>
           </svg>
-          Import/Export
+          {isAdmin ? ("Import/Export") : ("Export") }
+          
         </h3>
         <p className="text-sm text-gray-600">Upload or download hierarchy data</p>
       </div>
 
       <div className="space-y-4">
         {/* Upload Section */}
-        <div className="group">
+        {isAdmin &&(<div className="group">
           <label
             htmlFor="file-upload"
             className="flex flex-col items-center justify-center w-full rounded-xl cursor-pointer bg-gradient-to-br from-gray-50 to-gray-100 hover:from-emerald-50 hover:to-green-50 border-2 border-dashed border-gray-300 hover:border-emerald-400 transition-all duration-300 ease-in-out p-6 shadow-sm hover:shadow-md"
@@ -86,7 +88,8 @@ const FileUploader = ({ onUploadSuccess }) => {
               className="hidden"
             />
           </label>
-        </div>
+        </div>)}
+        
 
         {/* Download Button */}
         <button

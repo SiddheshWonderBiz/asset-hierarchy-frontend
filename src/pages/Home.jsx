@@ -298,7 +298,7 @@ const Home = () => {
                 </p>
               </div>
               <div className="p-6">
-                <FileUploader onUploadSuccess={reloadHierarchy} />
+                <FileUploader onUploadSuccess={reloadHierarchy}  role ={role}/>
               </div>
             </div>
 

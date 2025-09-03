@@ -49,7 +49,7 @@ export const userRole = () => {
 
 // ------------------ Axios Instance ------------------
 const axiosInstance = axios.create({
-  baseURL: "/api",
+  baseURL: "https://localhost:7092/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -81,8 +81,9 @@ export const login = async (username, password) => {
     setTimeout(() => debugToken(), 100);
     return data;
   } catch (error) {
-    console.error("Login error:", error.response?.data || error.message);
-    throw error;
+     const message = error.response?.data?.message || error.message || "Login failed";
+    console.error("Login error:", message);
+    throw new Error(message);  // throw with a clean message
   }
 };
 
@@ -96,8 +97,9 @@ export const signup = async (username, password) => {
     });
     return data.message;
   } catch (error) {
-    console.error("Signup error:", error.response?.data || error.message);
-    throw error;
+    const message = error.response?.data?.message || error.message || "Singup failed";
+    console.error("Signup error:", message);
+    throw new Error(message);  //
   }
 };
 
@@ -157,46 +159,47 @@ export const deleteNode = async (nodeId) => {
   }
 };
 
-// export const uploadHierarchyData = async (file) => {
-//   try {
-//     const formData = new FormData();
-//     formData.append("file", file);
-//     const { data } = await axiosInstance.post("/Hierarchy/upload", formData, {
-//       headers: { "Content-Type": "multipart/form-data" },
-//     });
-//     return data;
-//   } catch (error) {
-//     console.error("Upload error:", error.response?.data || error.message);
-//     throw error;
-//   }
-// };
 export const uploadHierarchyData = async (file) => {
   try {
-    console.log("1");
     const formData = new FormData();
     formData.append("file", file);
-    console.log("2");
-
-    const token = getAuthToken();
-    console.log("3",token);
-
-    // Do NOT set Content-Type manually, only Authorization
-    const resp = await axios.post("/api/Hierarchy/upload", formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      maxBodyLength: Infinity, // in case file is large
+    const { data } = await axiosInstance.post("/Hierarchy/upload", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
-        console.log("4",resp);
-
-
-    console.log("Upload successful:", resp.data);
-    return resp.data;
+    return data;
   } catch (error) {
     console.error("Upload error:", error.response?.data || error.message);
     throw error;
   }
 };
+// export const uploadHierarchyData = async (file) => {
+//   try {
+//     console.log("1");
+//     const formData = new FormData();
+//     formData.append("file", file);
+//     console.log("2");
+
+//     const token = getAuthToken();
+//     console.log("3",token);
+
+//     // Do NOT set Content-Type manually, only Authorization
+//     const resp = await axios.post("/api/Hierarchy/upload", formData, {
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+        
+//       },
+//       maxBodyLength: Infinity, // in case file is large
+//     });
+//         console.log("4",resp);
+
+
+//     console.log("Upload successful:", resp.data);
+//     return resp.data;
+//   } catch (error) {
+//     console.error("Upload error:", error.response?.data || error.message);
+//     throw error;
+//   }
+// };
 
 
 
