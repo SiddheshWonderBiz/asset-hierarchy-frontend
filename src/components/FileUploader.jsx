@@ -35,7 +35,7 @@ const FileUploader = ({ onUploadSuccess , role }) => {
     } catch (error) {
       console.error("Download failed:", error);
       const errMsg = error.response?.data || "Unexpected error occurred.";
-      toast.error(`Error downloading file: ${errMsg}`);
+      toast.error(`Error downloading file:` , error.message);
     }
   };
 
@@ -74,7 +74,7 @@ const FileUploader = ({ onUploadSuccess , role }) => {
                 />
               </svg>
               <p className="text-sm font-semibold text-gray-700 group-hover:text-emerald-700 transition-colors duration-300">
-                Upload JSON/XML File
+                Upload JSON File
               </p>
               <p className="text-xs text-gray-500 mt-1">
                 Drag and drop or click to browse
@@ -83,7 +83,7 @@ const FileUploader = ({ onUploadSuccess , role }) => {
             <input
               id="file-upload"
               type="file"
-              accept=".json,.xml"
+              accept=".json"
               onChange={handleFileChange}
               className="hidden"
             />

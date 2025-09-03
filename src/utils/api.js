@@ -113,7 +113,8 @@ export const fetchHierarchyData = async () => {
       "Error fetching hierarchy data:",
       error.response?.data || error.message
     );
-    throw error;
+    const message = error.response?.data?.message || error.message;
+    throw new Error(message);
   }
 };
 
@@ -126,7 +127,8 @@ export const addNode = async (parentId, newNode) => {
     return data;
   } catch (error) {
     console.error("Error adding node:", error.response?.data || error.message);
-    throw error;
+    const message = error.response?.data?.message || error.message;
+    throw new Error(message);
   }
 };
 
@@ -142,7 +144,8 @@ export const addHierarchy = async (newHierarchy) => {
       "Error adding hierarchy:",
       error.response?.data || error.message
     );
-    throw error;
+    const message = error.response?.data?.message || error.message;
+    throw new Error(message);
   }
 };
 
@@ -155,7 +158,8 @@ export const deleteNode = async (nodeId) => {
       "Error deleting node:",
       error.response?.data || error.message
     );
-    throw error;
+    const message = error.response?.data?.message || error.message;
+    throw new Error(message);
   }
 };
 
@@ -169,7 +173,8 @@ export const uploadHierarchyData = async (file) => {
     return data;
   } catch (error) {
     console.error("Upload error:", error.response?.data || error.message);
-    throw error;
+    const message = error.response?.data?.message || error.message;
+    throw new Error(message);
   }
 };
 // export const uploadHierarchyData = async (file) => {
@@ -211,7 +216,8 @@ export const downloadHierarchyData = async () => {
     return data;
   } catch (error) {
     console.error("Download failed:", error.response?.data || error.message);
-    throw error;
+   const message = error.response?.data?.message || error.message;
+    throw new Error(message);
   }
 };
 
@@ -224,7 +230,8 @@ export const updateNode = async (Id, Name) => {
       "Error updating node:",
       error.response?.data || error.message
     );
-    throw error;
+    const message = error.response?.data?.message || error.message;
+    throw new Error(message);
   }
 };
 
