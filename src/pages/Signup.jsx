@@ -102,6 +102,7 @@ const Signup = () => {
                   placeholder="Create a strong password"
                   disabled={loading}
                   required
+                  maxLength={30}
                 />
                 <button
                   type="button"
@@ -121,6 +122,15 @@ const Signup = () => {
                   6+ characters required
                 </span>
               </div>
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                    password.length > 25 
+                      ? 'text-red-600 bg-red-50' 
+                      : 'text-gray-500 bg-gray-100'
+                  }`}>
+                    {password.length}/30
+                  </span>
+                </div>
             </div>
 
             {/* Account Type Info */}
