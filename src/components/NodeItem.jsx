@@ -4,6 +4,7 @@ import { AiOutlinePlusCircle, AiOutlineDelete } from "react-icons/ai";
 import { IoSettingsOutline } from "react-icons/io5";
 import { updateNode } from "../utils/api";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const NodeItem = ({
   node,
@@ -29,22 +30,30 @@ const NodeItem = ({
     setNewName(node.name);
   };
 
-  const handleBlur = async () => {
-    if (newName.trim() && newName !== node.name) {
+ 
+const handleBlur = async () => {
+  if (newName.trim() && newName !== node.name) {
+    try {
       await updateNode(node.id, newName);
-      onUpdate && onUpdate(node.id, newName); //  tell parent to refresh
+      onUpdate && onUpdate(node.id, newName); // tell parent to refresh
+      toast.success(`Node renamed to "${newName}"`);
+    } catch (error) {
+      console.error("Update failed:", error);
+      toast.error(error.message || "Failed to update node");
+      setNewName(node.name); // 👈 revert back to old name on error
     }
-    setIsEditing(false);
-  };
+  }
+  setIsEditing(false); // 👈 always exit edit mode
+};
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      handleBlur();
-    } else if (e.key === "Escape") {
-      setNewName(node.name);
-      setIsEditing(false);
-    }
-  };
+const handleKeyDown = (e) => {
+  if (e.key === "Enter") {
+    handleBlur();
+  } else if (e.key === "Escape") {
+    setNewName(node.name);
+    setIsEditing(false);
+  }
+};
 
   const handleViewSignals = () => {
     // Navigate to signals page with node info

@@ -34,7 +34,6 @@ const FileUploader = ({ onUploadSuccess , role }) => {
       toast.success("File downloaded successfully.");
     } catch (error) {
       console.error("Download failed:", error);
-      const errMsg = error.response?.data || "Unexpected error occurred.";
       toast.error(`Error downloading file:` , error.message);
     }
   };

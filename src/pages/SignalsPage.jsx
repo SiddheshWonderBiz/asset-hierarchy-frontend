@@ -75,10 +75,9 @@ const SignalsPage = () => {
   const getValueTypeColor = (valueType) => {
     const colors = {
       String: "bg-blue-100 text-blue-800 border-blue-200",
-      Integer: "bg-green-100 text-green-800 border-green-200",
-      Float: "bg-purple-100 text-purple-800 border-purple-200",
-      Boolean: "bg-orange-100 text-orange-800 border-orange-200",
-      DateTime: "bg-indigo-100 text-indigo-800 border-indigo-200",
+      Int: "bg-green-100 text-green-800 border-green-200",
+      Real: "bg-purple-100 text-purple-800 border-purple-200",
+
     };
     return colors[valueType] || "bg-gray-100 text-gray-800 border-gray-200";
   };

@@ -113,7 +113,7 @@ export const fetchHierarchyData = async () => {
       "Error fetching hierarchy data:",
       error.response?.data || error.message
     );
-    const message = error.response?.data?.message || error.message;
+    const message = error.response?.data?.message ||   error.response?.data?.error  || error.message;
     throw new Error(message);
   }
 };
@@ -126,8 +126,8 @@ export const addNode = async (parentId, newNode) => {
     );
     return data;
   } catch (error) {
-    console.error("Error adding node:", error.response?.data || error.message);
-    const message = error.response?.data?.message || error.message;
+    console.error("Error adding node:", error.response?.data);
+    const message = error.response?.data?.message || error.response?.data?.error || error.message || "Unknown error occurred";
     throw new Error(message);
   }
 };
@@ -144,7 +144,7 @@ export const addHierarchy = async (newHierarchy) => {
       "Error adding hierarchy:",
       error.response?.data || error.message
     );
-    const message = error.response?.data?.message || error.message;
+    const message = error.response?.data?.message||  error.response?.data?.error  || error.message;
     throw new Error(message);
   }
 };
@@ -158,7 +158,7 @@ export const deleteNode = async (nodeId) => {
       "Error deleting node:",
       error.response?.data || error.message
     );
-    const message = error.response?.data?.message || error.message;
+    const message = error.response?.data?.message|| error.response?.data?.error  || error.message;
     throw new Error(message);
   }
 };
@@ -173,7 +173,7 @@ export const uploadHierarchyData = async (file) => {
     return data;
   } catch (error) {
     console.error("Upload error:", error.response?.data || error.message);
-    const message = error.response?.data?.message || error.message;
+    const message = error.response?.data?.message|| error.response?.data?.error  || error.message;
     throw new Error(message);
   }
 };
@@ -216,7 +216,7 @@ export const downloadHierarchyData = async () => {
     return data;
   } catch (error) {
     console.error("Download failed:", error.response?.data || error.message);
-   const message = error.response?.data?.message || error.message;
+   const message = error.response?.data?.message|| error.response?.data?.error  || error.message;
     throw new Error(message);
   }
 };
@@ -226,50 +226,68 @@ export const updateNode = async (Id, Name) => {
     const { data } = await axiosInstance.put(`/Hierarchy/update/${Id}`, Name);
     return data;
   } catch (error) {
-    console.error(
-      "Error updating node:",
-      error.response?.data || error.message
-    );
-    const message = error.response?.data?.message || error.message;
+    console.error("Error updating node:", error.response?.data);
+   const message = error.response?.data?.message || error.response?.data?.error || error.message || "Unknown error occurred";
     throw new Error(message);
   }
 };
 
 // ------------------ SIGNALS API (NO AUTH REQUIRED) ------------------
 export const getSignalsByAsset = async (assetId) => {
-  const { data } = await axiosInstance.get(`/Signals/asset/${assetId}`);
-  return data;
+  try {
+    const { data } = await axiosInstance.get(`/Signals/asset/${assetId}`);
+    return data;
+  } catch (error) {
+    console.error("Error fetching signals by asset:", error.response?.data || error.message);
+    const message = error.response?.data?.message || error.response?.data?.error || error.message;
+    throw new Error(message);
+  }
 };
 
 export const getSignalById = async (assetId, signalId) => {
-  const { data } = await axiosInstance.get(
-    `/Signals/asset/${assetId}/signals/${signalId}`
-  );
-  return data;
+  try {
+    const { data } = await axiosInstance.get(`/Signals/asset/${assetId}/signals/${signalId}`);
+    return data;
+  } catch (error) {
+    console.error("Error fetching signal by ID:", error.response?.data || error.message);
+    const message = error.response?.data?.message || error.response?.data?.error || error.message;
+    throw new Error(message);
+  }
 };
 
 export const addSignal = async (assetId, signalData) => {
-  const { data } = await axiosInstance.post(
-    `/Signals/asset/${assetId}/Addsignal`,
-    signalData
-  );
-  return data;
+  try {
+    const { data } = await axiosInstance.post(`/Signals/asset/${assetId}/Addsignal`, signalData);
+    return data;
+  } catch (error) {
+    console.error("Error adding signal:", error.response?.data || error.message);
+    const message = error.response?.data?.message || error.response?.data?.error || error.message;
+    throw new Error(message);
+  }
 };
 
 export const updateSignal = async (assetId, signalId, signalData) => {
-  const { data } = await axiosInstance.put(
-    `/Signals/asset/${assetId}/${signalId}`,
-    signalData
-  );
-  return data;
+  try {
+    const { data } = await axiosInstance.put(`/Signals/asset/${assetId}/${signalId}`, signalData);
+    return data;
+  } catch (error) {
+    console.error("Error updating signal:", error.response?.data || error.message);
+    const message = error.response?.data?.message || error.response?.data?.error || error.message;
+    throw new Error(message);
+  }
 };
 
 export const deleteSignal = async (assetId, signalId) => {
-  const { data } = await axiosInstance.delete(
-    `/Signals/asset/${assetId}/${signalId}`
-  );
-  return data;
+  try {
+    const { data } = await axiosInstance.delete(`/Signals/asset/${assetId}/${signalId}`);
+    return data;
+  } catch (error) {
+    console.error("Error deleting signal:", error.response?.data || error.message);
+    const message = error.response?.data?.message || error.response?.data?.error || error.message;
+    throw new Error(message);
+  }
 };
+
 
 // ------------------ Debug Token ------------------
 export const debugToken = () => {

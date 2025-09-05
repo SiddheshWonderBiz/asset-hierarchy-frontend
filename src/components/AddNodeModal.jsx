@@ -32,7 +32,7 @@ const AddNodeModal = ({ parentNode = null, onClose, onSuccess }) => {
       setName("");
     } catch (error) {
       console.error("Error adding node:", error);
-      toast.error(error?.message || "Failed to add node");
+      toast.error(error.message || "Failed to add node. Please try again.");
     }
   };
 
