@@ -71,35 +71,38 @@ axiosInstance.interceptors.request.use((config) => {
 
 
 // ------------------ Login ------------------
-export const login = async (username, password) => {
+export const login = async (identifier, password) => {
   try {
     const { data } = await axiosInstance.post("/Auth/login", {
-      username,
+      username: identifier,   // backend checks both
+      userEmail: identifier,  // send it also as email
       password,
     });
     setAuthToken(data.token);
     setTimeout(() => debugToken(), 100);
     return data;
   } catch (error) {
-     const message = error.response?.data?.message || error.message || "Login failed";
+    const message = error.response?.data?.message || error.message || "Login failed";
     console.error("Login error:", message);
-    throw new Error(message);  // throw with a clean message
+    throw new Error(message);
   }
 };
 
+
 // ------------------ Signup ------------------
-export const signup = async (username, password) => {
+export const signup = async (username, email, password) => {
   try {
     const { data } = await axiosInstance.post("/Auth/signup", {
       username,
+      userEmail: email,
       password,
       role: "Viewer",
     });
     return data.message;
   } catch (error) {
-    const message = error.response?.data?.message || error.message || "Singup failed";
+    const message = error.response?.data?.message || error.message || "Signup failed";
     console.error("Signup error:", message);
-    throw new Error(message);  //
+    throw new Error(message);
   }
 };
 
