@@ -240,9 +240,8 @@ export const updateNode = async (Id, Name) => {
     return data;
   } catch (error) {
     console.error("Error updating node:", error.response?.data);
-   const message = error.response?.data?.message || error.response?.data?.error || error.message || "Unknown error occurred";
-    throw new Error(message);
-  }
+    const message = error.response?.data?.message || error.response?.data?.error || error.message || "Unknown error occurred";
+    throw new Error(message);}
 };
 
 // ------------------ SIGNALS API (NO AUTH REQUIRED) ------------------
