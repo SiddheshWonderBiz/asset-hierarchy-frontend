@@ -11,7 +11,7 @@ export const startConnection = async () => {
 
   connection = new signalR.HubConnectionBuilder()
     .withUrl("https://localhost:7092/notificationHub", {
-      accessTokenFactory: () => getAuthToken(), // ✅ attach JWT
+      accessTokenFactory: () => getAuthToken(), 
        transport: signalR.HttpTransportType.WebSockets
     })
     .withAutomaticReconnect()
