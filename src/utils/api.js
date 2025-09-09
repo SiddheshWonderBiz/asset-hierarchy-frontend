@@ -153,11 +153,8 @@ export const addHierarchy = async (newHierarchy) => {
     );
     return data;
   } catch (error) {
-    console.error(
-      "Error adding hierarchy:",
-      error.response?.data || error.message
-    );
-    const message = error.response?.data?.message||  error.response?.data?.error  || error.message;
+    console.error("Error adding hieracrhy:", error.response?.data);
+    const message = error.response?.data?.message || error.response?.data?.error || error.message || "Unknown error occurred";
     throw new Error(message);
   }
 };
