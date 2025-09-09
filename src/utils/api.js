@@ -106,6 +106,25 @@ export const signup = async (username, email, password) => {
   }
 };
 
+// ------------------ HIERARCHY REORDER ------------------
+export const reorderNode = async (nodeId, newParentId) => {
+  try {
+    const { data } = await axiosInstance.post("/Hierarchy/reorder", {
+      nodeId,
+      newParentId, // 1 if dropped on root
+    });
+    return data.message; // returns string like "Node reordered successfully"
+  } catch (error) {
+    console.error("Error reordering node:", error.response?.data || error.message);
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message ||
+      "Unknown error occurred";
+    throw new Error(message);
+  }
+};
+
 // ------------------ HIERARCHY API ------------------
 export const fetchHierarchyData = async () => {
   try {

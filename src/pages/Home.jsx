@@ -4,7 +4,7 @@ import HierarchyViewer from "../components/HierarchyViewer";
 import AddNodeModal from "../components/AddNodeModal.jsx";
 import AddSignalModal from "../components/AddSignalModal.jsx";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal.jsx";
-import { fetchHierarchyData, updateNode, userRole } from "../utils/api.js";
+import { fetchHierarchyData, updateNode, userRole , reorderNode} from "../utils/api.js";
 import { toast } from "react-toastify";
 import { startConnection, getConnection } from "../utils/signalr";
 
@@ -75,6 +75,20 @@ useEffect(() => {
       setLoading(false);
     }
   };
+  const moveNode = async (nodeId, newParentId) => {
+  try {
+    // Call your backend API to move node
+    await reorderNode(nodeId, newParentId);
+
+    // Reload hierarchy from backend (or update state locally)
+    reloadHierarchy();
+
+    toast.success("Node moved successfully!");
+  } catch (err) {
+    toast.error(err.message || "Failed to move node");
+  }
+};
+
   // Function to search through hierarchy and count matches
   const searchInHierarchy = (node, term) => {
     if (!term) return 0;
@@ -265,6 +279,7 @@ useEffect(() => {
                     searchResults={searchResults}
                     totalNodes={count}
                     role={role}
+                    onMoveNode={moveNode}
                   />
                 ) : (
                   <div className="text-center py-20">

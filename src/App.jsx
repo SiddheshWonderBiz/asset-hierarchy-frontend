@@ -9,6 +9,8 @@ import Header from './components/Header'; // ✅ import header
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from "react-toastify";
 import { getAuthToken } from './utils/api.js';
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 const PrivateRoute = ({ children }) => {
   const token = getAuthToken();
@@ -34,6 +36,7 @@ function App() {
       <ToastContainer position="top-right" autoClose={3000} />
       <Router>
         <Layout>
+          <DndProvider backend={HTML5Backend}>
           <Routes>
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
@@ -64,6 +67,7 @@ function App() {
               </PrivateRoute>
             }/>
           </Routes>
+          </DndProvider>
         </Layout>
       </Router>
     </>
