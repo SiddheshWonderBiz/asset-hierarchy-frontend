@@ -16,7 +16,7 @@ const NodeItem = ({
   searchTerm = "",
   isSearchMatch = false,
   autoExpand = false,
-  moveNode  
+  onMoveNode
 }) => {
   const [isExpanded, setIsExpanded] = useState(autoExpand);
   const [isEditing, setIsEditing] = useState(false);
@@ -30,22 +30,23 @@ const NodeItem = ({
     setIsEditing(true);
     setNewName(node.name);
   };
-  const [{ isDragging }, dragRef] = useDrag({
-    type: "NODE",
-    item: { id: node.id },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  });
+  const [{ isDragging }, drag] = useDrag({
+  type: "NODE",
+  item: { id: node.id },
+  collect: (monitor) => ({
+    isDragging: monitor.isDragging(),
+  }),
+});
 
   const [, drop] = useDrop({
-  accept: "NODE",
-  drop: (item, monitor) => {
-    if (!monitor.didDrop()) {
-      moveNode && moveNode(item.id, node.id);
-    }
-  },
-});
+    accept: "NODE",
+    drop: (item, monitor) => {
+      if (!monitor.didDrop()) {
+         console.log(`Moving node ${item.id} under ${node.id}`);
+         onMoveNode && onMoveNode(item.id, node.id);
+      }
+    },
+  });
 
   const handleBlur = async () => {
     if (newName.trim() && newName !== node.name) {
@@ -117,7 +118,7 @@ const NodeItem = ({
 
   return (
     <div
-      ref={(el) => dragRef(dropRef(el))}
+      ref={(el) => drag(drop(el))}
       className={`group ${isDragging ? "opacity-50" : ""}`}
     >
       <div className="group">
@@ -247,6 +248,7 @@ const NodeItem = ({
                           .toLowerCase()
                           .includes(searchTerm.toLowerCase())}
                         autoExpand={Boolean(searchTerm)}
+                        onMoveNode={onMoveNode}
                       />
                     </div>
                   </div>

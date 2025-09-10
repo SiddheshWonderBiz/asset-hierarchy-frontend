@@ -279,7 +279,7 @@ useEffect(() => {
                     searchResults={searchResults}
                     totalNodes={count}
                     role={role}
-                    onMoveNode={moveNode}
+                    moveNode={moveNode}
                   />
                 ) : (
                   <div className="text-center py-20">

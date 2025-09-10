@@ -98,7 +98,7 @@ const HierarchyViewer = ({
                   isSearchMatch={(child?.name?.toLowerCase() || "").includes(
                     (searchTerm || "").toLowerCase()
                   )}
-                  onMove = {moveNode}
+                   onMoveNode = {moveNode}
                   autoExpand={Boolean(searchTerm)}
                 />
               </div>
