@@ -75,9 +75,7 @@ const FileUploader = ({ onUploadSuccess , role }) => {
               <p className="text-sm font-semibold text-gray-700 group-hover:text-emerald-700 transition-colors duration-300">
                 Upload JSON File
               </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Drag and drop or click to browse
-              </p>
+            
             </div>
             <input
               id="file-upload"

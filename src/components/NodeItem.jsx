@@ -16,7 +16,7 @@ const NodeItem = ({
   searchTerm = "",
   isSearchMatch = false,
   autoExpand = false,
-  onMoveNode
+  onMoveNode,
 }) => {
   const [isExpanded, setIsExpanded] = useState(autoExpand);
   const [isEditing, setIsEditing] = useState(false);
@@ -31,19 +31,19 @@ const NodeItem = ({
     setNewName(node.name);
   };
   const [{ isDragging }, drag] = useDrag({
-  type: "NODE",
-  item: { id: node.id },
-  collect: (monitor) => ({
-    isDragging: monitor.isDragging(),
-  }),
-});
+    type: "NODE",
+    item: { id: node.id },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
 
   const [, drop] = useDrop({
     accept: "NODE",
     drop: (item, monitor) => {
       if (!monitor.didDrop()) {
-         console.log(`Moving node ${item.id} under ${node.id}`);
-         onMoveNode && onMoveNode(item.id, node.id);
+        console.log(`Moving node ${item.id} under ${node.id}`);
+        onMoveNode && onMoveNode(item.id, node.id);
       }
     },
   });
@@ -57,10 +57,10 @@ const NodeItem = ({
       } catch (error) {
         console.error("Update failed:", error);
         toast.error(error.message || "Failed to update node");
-        setNewName(node.name); // 👈 revert back to old name on error
+        setNewName(node.name); //  revert back to old name on error
       }
     }
-    setIsEditing(false); // 👈 always exit edit mode
+    setIsEditing(false); //  always exit edit mode
   };
 
   const handleKeyDown = (e) => {
