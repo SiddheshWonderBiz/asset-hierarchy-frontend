@@ -6,6 +6,7 @@ import { updateNode } from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDrag, useDrop } from "react-dnd";
+import {userRole} from "../utils/api.js";
 
 const NodeItem = ({
   node,
@@ -24,6 +25,7 @@ const NodeItem = ({
   const navigate = useNavigate();
 
   const hasChildren = node.children && node.children.length > 0;
+  const isAdmin = userRole() === "Admin";
 
   const handleDoubleClick = () => {
     if (!onUpdate) return;
@@ -36,10 +38,12 @@ const NodeItem = ({
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
+    canDrag : isAdmin
   });
 
   const [, drop] = useDrop({
     accept: "NODE",
+    canDrop: () => isAdmin,
     drop: (item, monitor) => {
       if (!monitor.didDrop()) {
         console.log(`Moving node ${item.id} under ${node.id}`);
@@ -118,7 +122,7 @@ const NodeItem = ({
 
   return (
     <div
-      ref={(el) => drag(drop(el))}
+      ref={(el) => (isAdmin ? drag(drop(el) ) : null)}
       className={`group ${isDragging ? "opacity-50" : ""}`}
     >
       <div className="group">

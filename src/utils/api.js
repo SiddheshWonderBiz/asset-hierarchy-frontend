@@ -267,8 +267,12 @@ export const updateNode = async (Id, Name) => {
 export const getSignalsByAsset = async (assetId) => {
   try {
     const { data } = await axiosInstance.get(`/Signals/asset/${assetId}`);
-    return data;
+    return data || [];
   } catch (error) {
+    if (error.response?.status === 404) {
+      // Backend says "No signals found" → return empty list instead of error
+      return [];
+    }
     console.error("Error fetching signals by asset:", error.response?.data || error.message);
     const message = error.response?.data?.message || error.response?.data?.error || error.message;
     throw new Error(message);
