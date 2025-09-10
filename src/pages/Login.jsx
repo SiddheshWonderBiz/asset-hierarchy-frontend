@@ -8,7 +8,7 @@ import {
   IoPersonOutline,
   IoLockClosedOutline,
 } from "react-icons/io5";
-import { fetchCurrentUser } from '../utils/api.js'; // <-- import fetchCurrentUser
+import { fetchCurrentUser } from "../utils/api.js"; // <-- import fetchCurrentUser
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -155,6 +155,31 @@ const Login = () => {
               <span className={loading ? "opacity-0" : "opacity-100"}>
                 Sign In
               </span>
+            </button>
+
+            {/* OR Divider */}
+            <div className="flex items-center justify-center my-6">
+              <div className="flex-grow border-t border-gray-300"></div>
+              <span className="px-3 text-gray-500 text-sm">OR</span>
+              <div className="flex-grow border-t border-gray-300"></div>
+            </div>
+
+            {/* Google Login Button */}
+            <button
+              type="button"
+              onClick={() => {
+                // redirect to backend Google login endpoint
+                window.location.href =
+                  "https://localhost:7092/api/Auth/google-login";
+              }}
+              className="w-full flex items-center justify-center bg-white border border-gray-300 text-gray-700 font-semibold py-3 px-6 rounded-xl shadow-md hover:bg-gray-50 hover:shadow-lg transition-all duration-300"
+            >
+              <img
+                src="https://developers.google.com/identity/images/g-logo.png"
+                alt="Google Logo"
+                className="w-5 h-5 mr-3"
+              />
+              Sign in with Google
             </button>
           </form>
 

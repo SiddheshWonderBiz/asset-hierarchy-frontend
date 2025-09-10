@@ -5,7 +5,9 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import SignalsPage from './pages/SignalsPage';
 import LogsPage from './pages/LogsPage';
-import Header from './components/Header'; // ✅ import header
+import Header from './components/Header'; 
+import Callback from './pages/Callback';
+import AuthSuccess from './pages/AuthSuccess';
 import 'react-toastify/dist/ReactToastify.css';
 import { fetchCurrentUser } from './utils/api';
 import { ToastContainer } from "react-toastify";
@@ -63,6 +65,9 @@ function App() {
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            {/* <Route path="/callback" element={<Callback />} /> */}
+            // In your router setup
+<Route path="/auth-success" element={<AuthSuccess />} />
 
             {/* Protected Routes */}
             <Route
