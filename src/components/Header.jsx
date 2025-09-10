@@ -1,15 +1,27 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IoPersonCircleOutline, IoLogOutOutline, IoChevronDownOutline, IoShieldOutline } from 'react-icons/io5';
-import { removeAuthToken, getUserFromToken, userRole } from '../utils/api.js';
+import { fetchCurrentUser, logout } from '../utils/api.js'; // <-- update imports
 
 const Header = () => {
   const [showDropdown, setShowDropdown] = useState(false);
+  const [user, setUser] = useState(null);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
-  const user = getUserFromToken();
-  const role = userRole();
+  // ✅ Fetch user details from backend on mount
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const currentUser = await fetchCurrentUser();
+        setUser(currentUser);
+      } catch (err) {
+        console.error("Failed to load user:", err);
+        setUser(null);
+      }
+    };
+    loadUser();
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -18,15 +30,17 @@ const Header = () => {
         setShowDropdown(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    removeAuthToken();
-    navigate('/login');
-    setShowDropdown(false);
+  const handleLogout = async () => {
+    try {
+      await logout(); // <-- backend clears cookie
+      navigate('/login');
+    } finally {
+      setShowDropdown(false);
+    }
   };
 
   const getRoleBadgeColor = (role) => {
@@ -35,13 +49,7 @@ const Header = () => {
       : 'bg-blue-100 text-blue-800 border-blue-200';
   };
 
-  const isAdmin = () => role === 'Admin';
-
-  // Extract username from JWT claims
-  const username =
-    user?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ||
-    user?.name ||
-    'Unknown User';
+  const isAdmin = () => user?.role === 'Admin';
 
   return (
     <header className="bg-white shadow-lg border-b border-gray-200">
@@ -74,11 +82,8 @@ const Header = () => {
             </div>
             <div className="ml-4">
               <h1 className="text-xl font-bold text-gray-900">
-                <button onClick={() => {
-                      navigate('/');
-                     
-                    }}>Asset Hierarchy</button>
-                </h1>
+                <button onClick={() => navigate('/')}>Asset Hierarchy</button>
+              </h1>
             </div>
           </div>
 
@@ -90,15 +95,17 @@ const Header = () => {
             >
               <div className="flex items-center space-x-3">
                 <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">{username}</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    {user?.username || "Unknown User"}
+                  </p>
                   <div className="flex items-center justify-end">
                     <span
                       className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getRoleBadgeColor(
-                        role
+                        user?.role
                       )}`}
                     >
                       <IoShieldOutline className="w-3 h-3 mr-1" />
-                      {role || 'Unknown'}
+                      {user?.role || 'Unknown'}
                     </span>
                   </div>
                 </div>
@@ -115,15 +122,15 @@ const Header = () => {
             {showDropdown && (
               <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
                 <div className="px-4 py-3 border-b border-gray-100">
-                  <p className="text-sm font-medium text-gray-900">{username}</p>
+                  <p className="text-sm font-medium text-gray-900">{user?.username}</p>
                   <div className="flex items-center mt-1">
                     <span
                       className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getRoleBadgeColor(
-                        role
+                        user?.role
                       )}`}
                     >
                       <IoShieldOutline className="w-3 h-3 mr-1" />
-                      {role || 'Unknown'}
+                      {user?.role || 'Unknown'}
                     </span>
                     {isAdmin() && (
                       <span className="ml-2 text-xs text-green-600 font-medium">
@@ -142,7 +149,7 @@ const Header = () => {
                     }}
                     className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center transition-colors duration-200"
                   >
-                     View Logs
+                    View Logs
                   </button>
                 )}
 

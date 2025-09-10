@@ -4,7 +4,7 @@ import HierarchyViewer from "../components/HierarchyViewer";
 import AddNodeModal from "../components/AddNodeModal.jsx";
 import AddSignalModal from "../components/AddSignalModal.jsx";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal.jsx";
-import { fetchHierarchyData, updateNode, userRole , reorderNode} from "../utils/api.js";
+import { fetchHierarchyData, updateNode, fetchCurrentUser , reorderNode} from "../utils/api.js";
 import { toast } from "react-toastify";
 import { startConnection, getConnection } from "../utils/signalr";
 
@@ -22,8 +22,15 @@ const Home = () => {
   const [role, setRole] = useState(null);
 
 useEffect(() => {
-  setRole(userRole());
-  reloadHierarchy();
+ const loadUser = async () => {
+    try {
+      const user = await fetchCurrentUser(); // backend reads from cookie
+      setRole(user?.role);
+    } catch {
+      setRole(null);
+    }
+  };
+  // reloadHierarchy();
 
   const initSignalR = async () => {
     const conn = await startConnection();
@@ -48,6 +55,8 @@ useEffect(() => {
     }
   };
 
+  loadUser();
+  reloadHierarchy();
   initSignalR();
 
   return () => {

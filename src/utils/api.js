@@ -1,51 +1,4 @@
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-
-// ------------------ Auth Token Helpers ------------------
-export const setAuthToken = (token) => {
-  if (typeof token === "string") {
-    localStorage.setItem("authToken", token);
-  } else {
-    console.error("Invalid token format:", token);
-  }
-};
-
-export const getAuthToken = () => localStorage.getItem("authToken");
-
-export const removeAuthToken = () => {
-  localStorage.removeItem("authToken");
-};
-
-export const getUserFromToken = () => {
-  const token = getAuthToken();
-  if (!token) return null;
-  try {
-    return jwtDecode(token);
-  } catch {
-    return null;
-  }
-};
-
-export const isTokenExpired = () => {
-  const token = getAuthToken();
-  if (!token) return true;
-  try {
-    const decoded = jwtDecode(token);
-    return decoded.exp < Date.now() / 1000;
-  } catch {
-    return true;
-  }
-};
-
-export const userRole = () => {
-  const user = getUserFromToken();
-  if (!user) return null;
-  return (
-    user.role ||
-    user["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] ||
-    null
-  );
-};
 
 // ------------------ Axios Instance ------------------
 const axiosInstance = axios.create({
@@ -53,43 +6,26 @@ const axiosInstance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true,
+  withCredentials: true, // ✅ send cookies with every request
 });
 
-// Add interceptor to attach token for hierarchy endpoints
-axiosInstance.interceptors.request.use((config) => {
-  const token = getAuthToken();
-  if (
-    token &&
-    (config.url?.startsWith("/Hierarchy") ||
-     config.url?.startsWith("/Signals"))
-  ) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-
-// ------------------ Login ------------------
+// ------------------ Auth API ------------------
 export const login = async (identifier, password) => {
   try {
     const { data } = await axiosInstance.post("/Auth/login", {
-      username: identifier,   // backend checks both
-      userEmail: identifier,  // send it also as email
+      username: identifier,
+      userEmail: identifier,
       password,
     });
-    setAuthToken(data.token);
-    setTimeout(() => debugToken(), 100);
-    return data;
+    return data.message; // backend only returns { message: "Login successful" }
   } catch (error) {
-    const message = error.response?.data?.message || error.message || "Login failed";
+    const message =
+      error.response?.data?.message || error.message || "Login failed";
     console.error("Login error:", message);
     throw new Error(message);
   }
 };
 
-
-// ------------------ Signup ------------------
 export const signup = async (username, email, password) => {
   try {
     const { data } = await axiosInstance.post("/Auth/signup", {
@@ -100,9 +36,31 @@ export const signup = async (username, email, password) => {
     });
     return data.message;
   } catch (error) {
-    const message = error.response?.data?.message || error.message || "Signup failed";
+    const message =
+      error.response?.data?.message || error.message || "Signup failed";
     console.error("Signup error:", message);
     throw new Error(message);
+  }
+};
+
+export const logout = async () => {
+  try {
+    const { data } = await axiosInstance.post("/Auth/logout");
+    return data.message;
+  } catch (error) {
+    const message =
+      error.response?.data?.message || error.message || "Logout failed";
+    console.error("Logout error:", message);
+    throw new Error(message);
+  }
+};
+
+export const fetchCurrentUser = async () => {
+  try {
+    const { data } = await axiosInstance.get("/Auth/me");
+    return data; // { username, email, role }
+  } catch {
+    return null; // not logged in
   }
 };
 
@@ -111,9 +69,9 @@ export const reorderNode = async (nodeId, newParentId) => {
   try {
     const { data } = await axiosInstance.post("/Hierarchy/reorder", {
       nodeId,
-      newParentId, // 1 if dropped on root
+      newParentId,
     });
-    return data.message; // returns string like "Node reordered successfully"
+    return data.message;
   } catch (error) {
     console.error("Error reordering node:", error.response?.data || error.message);
     const message =
@@ -131,27 +89,28 @@ export const fetchHierarchyData = async () => {
     const { data } = await axiosInstance.get("/Hierarchy");
     return data;
   } catch (error) {
-    console.error(
-      "Error fetching hierarchy data:",
-      error.response?.data || error.message
-    );
-    const message = error.response?.data?.message ||   error.response?.data?.error  || error.message;
+    console.error("Error fetching hierarchy data:", error.response?.data || error.message);
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message;
     throw new Error(message);
   }
 };
+
 export const fetchlogs = async () => {
-  try{
-      const { data } = await axiosInstance.get("/Hierarchy/logs");
-      return data;
-  }catch (error) {
-    console.error(
-      "Error fetching logs data:",
-      error.response?.data || error.message
-    );
-    const message = error.response?.data?.message ||   error.response?.data?.error  || error.message;
+  try {
+    const { data } = await axiosInstance.get("/Hierarchy/logs");
+    return data;
+  } catch (error) {
+    console.error("Error fetching logs data:", error.response?.data || error.message);
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message;
     throw new Error(message);
   }
-}
+};
 
 export const addNode = async (parentId, newNode) => {
   try {
@@ -162,21 +121,26 @@ export const addNode = async (parentId, newNode) => {
     return data;
   } catch (error) {
     console.error("Error adding node:", error.response?.data);
-    const message = error.response?.data?.message || error.response?.data?.error || error.message || "Unknown error occurred";
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message ||
+      "Unknown error occurred";
     throw new Error(message);
   }
 };
 
 export const addHierarchy = async (newHierarchy) => {
   try {
-    const { data } = await axiosInstance.post(
-      "/Hierarchy/addhierarchy",
-      newHierarchy
-    );
+    const { data } = await axiosInstance.post("/Hierarchy/addhierarchy", newHierarchy);
     return data;
   } catch (error) {
-    console.error("Error adding hieracrhy:", error.response?.data);
-    const message = error.response?.data?.message || error.response?.data?.error || error.message || "Unknown error occurred";
+    console.error("Error adding hierarchy:", error.response?.data);
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message ||
+      "Unknown error occurred";
     throw new Error(message);
   }
 };
@@ -186,11 +150,11 @@ export const deleteNode = async (nodeId) => {
     const { data } = await axiosInstance.delete(`/Hierarchy/remove/${nodeId}`);
     return data;
   } catch (error) {
-    console.error(
-      "Error deleting node:",
-      error.response?.data || error.message
-    );
-    const message = error.response?.data?.message|| error.response?.data?.error  || error.message;
+    console.error("Error deleting node:", error.response?.data || error.message);
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message;
     throw new Error(message);
   }
 };
@@ -205,40 +169,13 @@ export const uploadHierarchyData = async (file) => {
     return data;
   } catch (error) {
     console.error("Upload error:", error.response?.data || error.message);
-    const message = error.response?.data?.message|| error.response?.data?.error  || error.message;
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message;
     throw new Error(message);
   }
 };
-// export const uploadHierarchyData = async (file) => {
-//   try {
-//     console.log("1");
-//     const formData = new FormData();
-//     formData.append("file", file);
-//     console.log("2");
-
-//     const token = getAuthToken();
-//     console.log("3",token);
-
-//     // Do NOT set Content-Type manually, only Authorization
-//     const resp = await axios.post("/api/Hierarchy/upload", formData, {
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-        
-//       },
-//       maxBodyLength: Infinity, // in case file is large
-//     });
-//         console.log("4",resp);
-
-
-//     console.log("Upload successful:", resp.data);
-//     return resp.data;
-//   } catch (error) {
-//     console.error("Upload error:", error.response?.data || error.message);
-//     throw error;
-//   }
-// };
-
-
 
 export const downloadHierarchyData = async () => {
   try {
@@ -248,7 +185,10 @@ export const downloadHierarchyData = async () => {
     return data;
   } catch (error) {
     console.error("Download failed:", error.response?.data || error.message);
-   const message = error.response?.data?.message|| error.response?.data?.error  || error.message;
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message;
     throw new Error(message);
   }
 };
@@ -259,22 +199,29 @@ export const updateNode = async (Id, Name) => {
     return data;
   } catch (error) {
     console.error("Error updating node:", error.response?.data);
-    const message = error.response?.data?.message || error.response?.data?.error || error.message || "Unknown error occurred";
-    throw new Error(message);}
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message ||
+      "Unknown error occurred";
+    throw new Error(message);
+  }
 };
 
-// ------------------ SIGNALS API (NO AUTH REQUIRED) ------------------
+// ------------------ SIGNALS API ------------------
 export const getSignalsByAsset = async (assetId) => {
   try {
     const { data } = await axiosInstance.get(`/Signals/asset/${assetId}`);
     return data || [];
   } catch (error) {
     if (error.response?.status === 404) {
-      // Backend says "No signals found" → return empty list instead of error
       return [];
     }
     console.error("Error fetching signals by asset:", error.response?.data || error.message);
-    const message = error.response?.data?.message || error.response?.data?.error || error.message;
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message;
     throw new Error(message);
   }
 };
@@ -285,7 +232,10 @@ export const getSignalById = async (assetId, signalId) => {
     return data;
   } catch (error) {
     console.error("Error fetching signal by ID:", error.response?.data || error.message);
-    const message = error.response?.data?.message || error.response?.data?.error || error.message;
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message;
     throw new Error(message);
   }
 };
@@ -296,7 +246,10 @@ export const addSignal = async (assetId, signalData) => {
     return data;
   } catch (error) {
     console.error("Error adding signal:", error.response?.data || error.message);
-    const message = error.response?.data?.message || error.response?.data?.error || error.message;
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message;
     throw new Error(message);
   }
 };
@@ -307,7 +260,10 @@ export const updateSignal = async (assetId, signalId, signalData) => {
     return data;
   } catch (error) {
     console.error("Error updating signal:", error.response?.data || error.message);
-    const message = error.response?.data?.message || error.response?.data?.error || error.message;
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message;
     throw new Error(message);
   }
 };
@@ -318,26 +274,10 @@ export const deleteSignal = async (assetId, signalId) => {
     return data;
   } catch (error) {
     console.error("Error deleting signal:", error.response?.data || error.message);
-    const message = error.response?.data?.message || error.response?.data?.error || error.message;
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message;
     throw new Error(message);
-  }
-};
-
-
-// ------------------ Debug Token ------------------
-export const debugToken = () => {
-  const token = getAuthToken();
-  console.log("=== TOKEN DEBUG ===");
-  console.log("Token exists:", !!token);
-  if (!token) return;
-  console.log("Token expired:", isTokenExpired());
-  try {
-    const decoded = jwtDecode(token);
-    console.log("Full payload:", decoded);
-    console.log("Username:", decoded.username || decoded.name);
-    console.log("Role:", decoded.role);
-    console.log("Expires:", new Date(decoded.exp * 1000));
-  } catch (err) {
-    console.error("Invalid token:", err);
   }
 };

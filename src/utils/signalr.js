@@ -1,6 +1,5 @@
 // utils/signalr.js
 import * as signalR from "@microsoft/signalr";
-import { getAuthToken } from "./api";
 
 let connection = null;
 
@@ -11,8 +10,8 @@ export const startConnection = async () => {
 
   connection = new signalR.HubConnectionBuilder()
     .withUrl("https://localhost:7092/notificationHub", {
-      accessTokenFactory: () => getAuthToken(), 
-       transport: signalR.HttpTransportType.WebSockets
+      withCredentials: true, // ✅ allow cookies to flow with requests
+      transport: signalR.HttpTransportType.WebSockets
     })
     .withAutomaticReconnect()
     .configureLogging(signalR.LogLevel.Information)
@@ -20,9 +19,9 @@ export const startConnection = async () => {
 
   try {
     await connection.start();
-    console.log(" SignalR connected");
+    console.log("✅ SignalR connected");
   } catch (err) {
-    console.error("SignalR connection failed: ", err);
+    console.error("❌ SignalR connection failed:", err);
   }
 
   return connection;
