@@ -84,17 +84,30 @@ useEffect(() => {
       setLoading(false);
     }
   };
-  const moveNode = async (nodeId, newParentId) => {
+ const moveNode = async (nodeId, newParentId) => {
   try {
+    setLoading(true); // Show loading state during move operation
+    
+    
     // Call your backend API to move node
     await reorderNode(nodeId, newParentId);
 
-    // Reload hierarchy from backend (or update state locally)
-    reloadHierarchy();
+    // Add a small delay and force refresh multiple times if needed
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    // Force a complete refresh by clearing state first
+    setHierarchyData(null);
+    setFilteredHierarchyData(null);
+    
+    // Then reload fresh data
+    await reloadHierarchy();
 
     toast.success("Node moved successfully!");
   } catch (err) {
+    console.error("Move node error:", err);
     toast.error(err.message || "Failed to move node");
+  } finally {
+    setLoading(false);
   }
 };
 

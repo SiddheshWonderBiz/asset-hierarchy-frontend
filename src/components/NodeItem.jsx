@@ -6,7 +6,6 @@ import { updateNode } from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDrag, useDrop } from "react-dnd";
-import {fetchCurrentUser} from "../utils/api.js";
 
 const NodeItem = ({
   node,
@@ -18,6 +17,7 @@ const NodeItem = ({
   isSearchMatch = false,
   autoExpand = false,
   onMoveNode,
+  role
 }) => {
   const [isExpanded, setIsExpanded] = useState(autoExpand);
   const [isEditing, setIsEditing] = useState(false);
@@ -25,7 +25,7 @@ const NodeItem = ({
   const navigate = useNavigate();
 
   const hasChildren = node.children && node.children.length > 0;
-  const isAdmin = fetchCurrentUser().role === "Admin";
+  const isAdmin = role === "Admin";
 
   const handleDoubleClick = () => {
     if (!onUpdate) return;

@@ -100,6 +100,7 @@ const HierarchyViewer = ({
                   )}
                    onMoveNode = {moveNode}
                   autoExpand={Boolean(searchTerm)}
+                  role={role}
                 />
               </div>
             ))}

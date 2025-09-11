@@ -58,11 +58,14 @@ export const logout = async () => {
 export const fetchCurrentUser = async () => {
   try {
     const { data } = await axiosInstance.get("/Auth/me");
+    
     return data; // { username, email, role }
+    
   } catch {
     return null; // not logged in
   }
 };
+
 
 // ------------------ HIERARCHY REORDER ------------------
 export const reorderNode = async (nodeId, newParentId) => {
