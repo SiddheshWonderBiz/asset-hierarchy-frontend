@@ -17,7 +17,7 @@ const NodeItem = ({
   isSearchMatch = false,
   autoExpand = false,
   onMoveNode,
-  role
+  role,
 }) => {
   const [isExpanded, setIsExpanded] = useState(autoExpand);
   const [isEditing, setIsEditing] = useState(false);
@@ -32,13 +32,15 @@ const NodeItem = ({
     setIsEditing(true);
     setNewName(node.name);
   };
+
+  // Drag and Drop
   const [{ isDragging }, drag] = useDrag({
     type: "NODE",
     item: { id: node.id },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
-    canDrag : isAdmin
+    canDrag: isAdmin,
   });
 
   const [, drop] = useDrop({
@@ -61,10 +63,10 @@ const NodeItem = ({
       } catch (error) {
         console.error("Update failed:", error);
         toast.error(error.message || "Failed to update node");
-        setNewName(node.name); //  revert back to old name on error
+        setNewName(node.name); // revert back to old name on error
       }
     }
-    setIsEditing(false); //  always exit edit mode
+    setIsEditing(false); // always exit edit mode
   };
 
   const handleKeyDown = (e) => {
@@ -77,7 +79,6 @@ const NodeItem = ({
   };
 
   const handleViewSignals = () => {
-    // Navigate to signals page with node info
     navigate(`/signals/${node.id}`, {
       state: { nodeInfo: { id: node.id, name: node.name } },
     });
@@ -121,146 +122,149 @@ const NodeItem = ({
   };
 
   return (
-    <div
-      ref={(el) => (isAdmin ? drag(drop(el) ) : null)}
-      className={`group ${isDragging ? "opacity-50" : ""}`}
-    >
-      <div className="group">
+    <div className="group">
+      <div
+        className={`bg-white rounded-lg border transition-all duration-200 hover:shadow-md ${
+          isSearchMatch
+            ? "border-emerald-400 shadow-md ring-2 ring-emerald-100"
+            : "border-gray-200 hover:border-emerald-300"
+        }`}
+      >
+        {/* HEADER ROW (draggable/droppable) */}
         <div
-          className={`bg-white rounded-lg border transition-all duration-200 hover:shadow-md ${
-            isSearchMatch
-              ? "border-emerald-400 shadow-md ring-2 ring-emerald-100"
-              : "border-gray-200 hover:border-emerald-300"
+          ref={(el) => (isAdmin ? drag(drop(el)) : null)}
+          className={`flex items-center justify-between p-4 ${
+            isDragging ? "opacity-50" : ""
           }`}
         >
-          <div className="flex items-center justify-between p-4">
-            <div className="flex items-center space-x-3 flex-1">
-              {hasChildren && (
-                <button
-                  className="text-gray-500 hover:text-emerald-600 transition-colors duration-200 p-1 rounded hover:bg-emerald-50"
-                  onClick={() => setIsExpanded(!isExpanded)}
-                >
-                  {isExpanded ? (
-                    <IoChevronDown size={20} />
-                  ) : (
-                    <IoChevronForward size={20} />
-                  )}
-                </button>
-              )}
-
-              <div
-                className="flex items-center gap-3 flex-1"
-                onDoubleClick={handleDoubleClick}
+          <div className="flex items-center space-x-3 flex-1">
+            {hasChildren && (
+              <button
+                className="text-gray-500 hover:text-emerald-600 transition-colors duration-200 p-1 rounded hover:bg-emerald-50"
+                onClick={() => setIsExpanded(!isExpanded)}
               >
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    onBlur={handleBlur}
-                    onKeyDown={handleKeyDown}
-                    autoFocus
-                    className="border px-2 py-1 rounded w-full text-gray-800 text-lg"
-                  />
+                {isExpanded ? (
+                  <IoChevronDown size={20} />
                 ) : (
-                  <span className="font-medium text-gray-800 text-lg">
-                    {highlightSearchTerm(node.name, searchTerm)}
-                  </span>
+                  <IoChevronForward size={20} />
                 )}
-
-                {hasChildren && (
-                  <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-medium">
-                    {node.children.length}{" "}
-                    {node.children.length === 1 ? "child" : "children"}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              {/* View/Manage Signals Button */}
-              <button
-                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-2 rounded-lg transition-all duration-200 transform hover:scale-110"
-                onClick={handleViewSignals}
-                title="View/Manage signals"
-              >
-                <IoSettingsOutline size={22} />
               </button>
+            )}
 
-              {/* Add Signal Button */}
-              <button
-                className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 p-2 rounded-lg transition-all duration-200 transform hover:scale-110"
-                onClick={handleAddSignalClick}
-                title="Add signal"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
-              </button>
-
-              {/* Add Child Node Button */}
-              {onAdd && (
-                <button
-                  className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 p-2 rounded-lg transition-all duration-200 transform hover:scale-110"
-                  onClick={() => onAdd(node)}
-                  title="Add child node"
-                >
-                  <AiOutlinePlusCircle size={22} />
-                </button>
+            <div
+              className="flex items-center gap-3 flex-1"
+              onDoubleClick={handleDoubleClick}
+            >
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  onBlur={handleBlur}
+                  onKeyDown={handleKeyDown}
+                  autoFocus
+                  className="border px-2 py-1 rounded w-full text-gray-800 text-lg"
+                />
+              ) : (
+                <span className="font-medium text-gray-800 text-lg">
+                  {highlightSearchTerm(node.name, searchTerm)}
+                </span>
               )}
 
-              {/* Delete Node Button */}
-              {onDelete && (
-                <button
-                  className="text-red-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition-all duration-200 transform hover:scale-110"
-                  onClick={() => onDelete(node)}
-                  title="Delete node"
-                >
-                  <AiOutlineDelete size={22} />
-                </button>
+              {hasChildren && (
+                <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-medium">
+                  {node.children.length}{" "}
+                  {node.children.length === 1 ? "child" : "children"}
+                </span>
               )}
             </div>
           </div>
 
-          {isExpanded && hasChildren && (
-            <div className="border-t border-gray-100 bg-gray-50 p-4">
-              <div className="space-y-3">
-                {node.children.map((child, index) => (
-                  <div key={child.id} className="relative">
-                    {index > 0 && (
-                      <div className="absolute -top-1.5 left-0 right-0 h-px bg-gray-200"></div>
-                    )}
-                    <div className="pl-4 border-l-2 border-emerald-200">
-                      <NodeItem
-                        node={child}
-                        onUpdate={onUpdate}
-                        onAdd={onAdd}
-                        onDelete={onDelete}
-                        onAddSignal={onAddSignal}
-                        searchTerm={searchTerm}
-                        isSearchMatch={child.name
-                          .toLowerCase()
-                          .includes(searchTerm.toLowerCase())}
-                        autoExpand={Boolean(searchTerm)}
-                        onMoveNode={onMoveNode}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            {/* View/Manage Signals Button */}
+            <button
+              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-2 rounded-lg transition-all duration-200 transform hover:scale-110"
+              onClick={handleViewSignals}
+              title="View/Manage signals"
+            >
+              <IoSettingsOutline size={22} />
+            </button>
+
+            {/* Add Signal Button */}
+            <button
+              className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 p-2 rounded-lg transition-all duration-200 transform hover:scale-110"
+              onClick={handleAddSignalClick}
+              title="Add signal"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+            </button>
+
+            {/* Add Child Node Button */}
+            {onAdd && (
+              <button
+                className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 p-2 rounded-lg transition-all duration-200 transform hover:scale-110"
+                onClick={() => onAdd(node)}
+                title="Add child node"
+              >
+                <AiOutlinePlusCircle size={22} />
+              </button>
+            )}
+
+            {/* Delete Node Button */}
+            {onDelete && (
+              <button
+                className="text-red-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition-all duration-200 transform hover:scale-110"
+                onClick={() => onDelete(node)}
+                title="Delete node"
+              >
+                <AiOutlineDelete size={22} />
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* CHILDREN */}
+        {isExpanded && hasChildren && (
+          <div className="border-t border-gray-100 bg-gray-50 p-4">
+            <div className="space-y-3">
+              {node.children.map((child, index) => (
+                <div key={child.id} className="relative">
+                  {index > 0 && (
+                    <div className="absolute -top-1.5 left-0 right-0 h-px bg-gray-200"></div>
+                  )}
+                  <div className="pl-4 border-l-2 border-emerald-200">
+                    <NodeItem
+                      node={child}
+                      onUpdate={onUpdate}
+                      onAdd={onAdd}
+                      onDelete={onDelete}
+                      onAddSignal={onAddSignal}
+                      searchTerm={searchTerm}
+                      isSearchMatch={child.name
+                        .toLowerCase()
+                        .includes(searchTerm.toLowerCase())}
+                      autoExpand={Boolean(searchTerm)}
+                      onMoveNode={onMoveNode}
+                      role={role} // ✅ pass role down
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
