@@ -79,7 +79,8 @@ const AddSignalModal = ({ node, onClose, onSuccess, editingSignal = null }) => {
         <form onSubmit={handleSubmit} className="p-6">
           <div className="space-y-5">
             {/* Signal Name */}
-            <div>
+            {/* Signal Name */}
+            <div className="relative">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Signal Name *
               </label>
@@ -91,7 +92,18 @@ const AddSignalModal = ({ node, onClose, onSuccess, editingSignal = null }) => {
                 placeholder="Enter signal name"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                 required
+                maxLength={50}
               />
+              {/* Character Counter */}
+              <div className="absolute right-3 bottom-2 text-xs">
+                <span
+                  className={`font-medium ${
+                    formData.name.length > 45 ? "text-red-500" : "text-gray-400"
+                  }`}
+                >
+                  {formData.name.length}/50
+                </span>
+              </div>
             </div>
 
             {/* Value Type */}
@@ -115,19 +127,31 @@ const AddSignalModal = ({ node, onClose, onSuccess, editingSignal = null }) => {
             </div>
 
             {/* Description */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Description
-              </label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                placeholder="Enter signal description (optional)"
-                rows={3}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 resize-none"
-              />
-            </div>
+           {/* Description */}
+<div className="relative">
+  <label className="block text-sm font-semibold text-gray-700 mb-2">
+    Description
+  </label>
+  <textarea
+    name="description"
+    value={formData.description}
+    onChange={handleInputChange}
+    placeholder="Enter signal description (optional)"
+    rows={3}
+    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 resize-none"
+    maxLength={300}
+  />
+  {/* Character Counter */}
+  <div className="absolute right-3 bottom-2 text-xs">
+    <span
+      className={`font-medium ${
+        formData.description.length > 280 ? "text-red-500" : "text-gray-400"
+      }`}
+    >
+      {formData.description.length}/300
+    </span>
+  </div>
+</div>
           </div>
 
           {/* Buttons */}
