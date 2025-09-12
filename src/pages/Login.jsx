@@ -165,39 +165,41 @@ const Login = () => {
             </div>
 
             {/*  Login Button */}
-            <div className="flex flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 w-full">
+              {/* Google Login Button */}
               <button
                 type="button"
                 onClick={() => {
-                  // redirect to backend Google login endpoint
                   window.location.href =
                     "https://localhost:7092/api/Auth/google-login";
                 }}
-                className="w-full flex items-center justify-center bg-white border border-gray-300 text-gray-700 font-semibold py-3 px-6 rounded-xl shadow-md hover:bg-gray-50 hover:shadow-lg transition-all duration-300"
+                className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 font-medium py-3 px-6 rounded-xl shadow-sm hover:bg-gray-50 hover:shadow-md transition-all duration-300"
               >
                 <img
                   src="https://developers.google.com/identity/images/g-logo.png"
                   alt="Google Logo"
-                  className="w-5 h-5 "
+                  className="w-5 h-5"
                 />
-               
+                <span>Sign in with Google</span>
               </button>
 
+              {/* GitHub Login Button */}
               <button
                 type="button"
                 onClick={() => {
                   window.location.href =
                     "https://localhost:7092/api/Auth/github-login";
                 }}
-                className="w-full flex items-center justify-center bg-gray-800 text-white font-semibold py-3 px-6 rounded-xl shadow-md hover:bg-gray-900 transition-all duration-300"
+                className="w-full flex items-center justify-center gap-3 bg-gray-900 text-white font-medium py-3 px-6 rounded-xl shadow-sm hover:bg-gray-800 hover:shadow-md transition-all duration-300"
               >
                 <svg
-                  className="w-5 h-5 "
+                  className="w-5 h-5"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
                   <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.69-3.88-1.55-3.88-1.55-.53-1.36-1.3-1.72-1.3-1.72-1.06-.72.08-.71.08-.71 1.17.08 1.79 1.2 1.79 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.76.41-1.27.74-1.56-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.3 1.19-3.11-.12-.3-.52-1.52.11-3.17 0 0 .97-.31 3.18 1.18a11.01 11.01 0 015.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.65.23 2.87.11 3.17.74.81 1.19 1.85 1.19 3.11 0 4.43-2.68 5.41-5.24 5.69.42.36.79 1.08.79 2.18 0 1.57-.01 2.84-.01 3.22 0 .31.21.68.8.56C20.71 21.39 24 17.08 24 12c0-6.35-5.15-11.5-11.5-11.5z" />
                 </svg>
+                <span>Sign in with GitHub</span>
               </button>
             </div>
           </form>

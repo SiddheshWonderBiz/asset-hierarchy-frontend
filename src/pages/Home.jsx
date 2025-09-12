@@ -131,34 +131,30 @@ useEffect(() => {
 
   // Function to filter hierarchy based on search term - shows matching nodes with their children only
   const filterHierarchy = (node, term) => {
-    if (!term) return node;
+  if (!term) return node;
 
-    const isMatch = node.name?.toLowerCase().includes(term.toLowerCase());
+  const isMatch = node.name?.toLowerCase().includes(term.toLowerCase());
 
-    // If parent matches → return full node (with all children intact)
-    if (isMatch) {
-      return { ...node }; // keep all children untouched
+  // If the current node matches → return it WITH its full children (unfiltered)
+  if (isMatch) {
+    return { ...node }; // return this node and all its children intact
+  }
+
+  // Otherwise → check its children recursively
+  if (node.children) {
+    for (const child of node.children) {
+      const filteredChild = filterHierarchy(child, term);
+      if (filteredChild) {
+        // Return ONLY the matching child branch
+        return filteredChild;
+      }
     }
+  }
 
-    // Otherwise → check children recursively
-    const matchingChildren = [];
-    if (node.children) {
-      node.children.forEach((child) => {
-        const filteredChild = filterHierarchy(child, term);
-        if (filteredChild) {
-          matchingChildren.push(filteredChild);
-        }
-      });
-    }
+  // No match found
+  return null;
+};
 
-    // If children match, keep them
-    if (matchingChildren.length > 0) {
-      return { ...node, children: matchingChildren };
-    }
-
-    // No match at all → drop
-    return null;
-  };
   
   const handleSearch = (term) => {
     setSearchTerm(term);
