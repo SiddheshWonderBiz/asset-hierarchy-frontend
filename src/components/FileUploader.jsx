@@ -56,22 +56,10 @@ const FileUploader = ({ onUploadSuccess , role }) => {
         {isAdmin &&(<div className="group">
           <label
             htmlFor="file-upload"
-            className="flex flex-col items-center justify-center w-full rounded-xl cursor-pointer bg-gradient-to-br from-gray-50 to-gray-100 hover:from-emerald-50 hover:to-green-50 border-2 border-dashed border-gray-300 hover:border-emerald-400 transition-all duration-300 ease-in-out p-6 shadow-sm hover:shadow-md"
+            className="flex flex-col items-center justify-center w-full rounded-xl cursor-pointer bg-gradient-to-br from-gray-50 to-gray-100 hover:from-emerald-50 hover:to-green-50 border-2 border-dashed border-gray-300 hover:border-emerald-400 transition-all duration-300 ease-in-out p-4 shadow-sm hover:shadow-md"
           >
             <div className="flex flex-col items-center justify-center">
-              <svg
-                className="w-8 h-8 mb-3 text-gray-400 group-hover:text-emerald-500 transition-colors duration-300"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                />
-              </svg>
+              
               <p className="text-sm font-semibold text-gray-700 group-hover:text-emerald-700 transition-colors duration-300">
                 Upload JSON File
               </p>
@@ -80,7 +68,7 @@ const FileUploader = ({ onUploadSuccess , role }) => {
             <input
               id="file-upload"
               type="file"
-              accept=".json"
+              accept=".json,.xml"
               onChange={handleFileChange}
               className="hidden"
             />

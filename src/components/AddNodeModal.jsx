@@ -37,7 +37,7 @@ const AddNodeModal = ({ parentNode = null, onClose, onSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+    <div className="fixed inset-0 backdrop-blur-sm flex justify-center items-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-300 scale-100">
         {/* Header */}
         <div className="bg-green-600 px-6 py-4 rounded-t-xl">

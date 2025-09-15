@@ -1,4 +1,3 @@
-// utils/signalr.js
 import * as signalR from "@microsoft/signalr";
 
 let connection = null;
@@ -10,7 +9,7 @@ export const startConnection = async () => {
 
   connection = new signalR.HubConnectionBuilder()
     .withUrl("https://localhost:7092/notificationHub", {
-      withCredentials: true, // ✅ allow cookies to flow with requests
+      withCredentials: true, //  allow cookies
       transport: signalR.HttpTransportType.WebSockets
     })
     .withAutomaticReconnect()

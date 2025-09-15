@@ -36,11 +36,11 @@ useEffect(() => {
     const conn = await startConnection();
 
     if (conn) {
-      // Remove old handlers first (avoid duplicates)
+      // Remove old handlers (avoid duplicates)
       conn.off("nodeAdded");
       conn.off("signalAdded");
 
-      // Attach fresh handlers
+      // handlers for real-time updates
       conn.on("nodeAdded", (message) => {
         console.log("Node added:", message);
         toast.info(`New node added: ${message}`);
