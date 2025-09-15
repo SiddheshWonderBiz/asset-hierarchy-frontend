@@ -61,7 +61,7 @@ const FileUploader = ({ onUploadSuccess , role }) => {
             <div className="flex flex-col items-center justify-center">
               
               <p className="text-sm font-semibold text-gray-700 group-hover:text-emerald-700 transition-colors duration-300">
-                Upload JSON File
+                Upload JSON/XML File
               </p>
             
             </div>
