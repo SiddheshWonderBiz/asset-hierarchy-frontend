@@ -4,7 +4,12 @@ import HierarchyViewer from "../components/HierarchyViewer";
 import AddNodeModal from "../components/AddNodeModal.jsx";
 import AddSignalModal from "../components/AddSignalModal.jsx";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal.jsx";
-import { fetchHierarchyData, updateNode, fetchCurrentUser , reorderNode} from "../utils/api.js";
+import {
+  fetchHierarchyData,
+  updateNode,
+  fetchCurrentUser,
+  reorderNode,
+} from "../utils/api.js";
 import { toast } from "react-toastify";
 import { startConnection, getConnection } from "../utils/signalr";
 
@@ -21,54 +26,198 @@ const Home = () => {
   const [filteredHierarchyData, setFilteredHierarchyData] = useState(null);
   const [role, setRole] = useState(null);
 
-useEffect(() => {
- const loadUser = async () => {
-    try {
-      const user = await fetchCurrentUser(); // backend reads from cookie
-      setRole(user?.role);
-    } catch {
-      setRole(null);
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const user = await fetchCurrentUser();
+        setRole(user?.role);
+      } catch {
+        setRole(null);
+      }
+    };
+
+    const initSignalR = async () => {
+      const conn = await startConnection();
+
+      if (conn) {
+        conn.off("nodeAdded");
+        conn.off("signalAdded");
+
+        conn.on("nodeAdded", ({ parentId, node }) => {
+          console.log("Node added:", node, "under parent:", parentId);
+          toast.info(`New node added: ${node.name}`);
+
+          setHierarchyData((prevTree) => {
+            const updatedTree = addNodeToTree(prevTree, parentId, node);
+
+            if (searchTerm) handleSearch(searchTerm);
+            else setFilteredHierarchyData(updatedTree);
+
+            setCount(countNodes(updatedTree));
+            return updatedTree;
+          });
+        });
+
+        conn.on("signalAdded", (message) => {
+          console.log("Signal added:", message);
+          toast.info(`New signal added: ${message}`);
+          reloadHierarchy();
+        });
+      }
+    };
+
+    loadUser();
+    reloadHierarchy();
+    initSignalR();
+
+    return () => {
+      const conn = getConnection();
+      if (conn) {
+        conn.off("nodeAdded");
+        conn.off("signalAdded");
+        conn.stop();
+      }
+    };
+  }, []);
+
+  // Utility function to find and update a node in the tree
+  const updateNodeInTree = (tree, nodeId, updateFn) => {
+    if (!tree) return null;
+
+    const updateRecursive = (node) => {
+      if (node.id === nodeId) {
+        return updateFn(node);
+      }
+
+      if (node.children) {
+        return {
+          ...node,
+          children: node.children.map(updateRecursive),
+        };
+      }
+
+      return node;
+    };
+
+    if (tree.children) {
+      return {
+        ...tree,
+        children: tree.children.map(updateRecursive),
+      };
     }
+
+    return updateRecursive(tree);
   };
-  // reloadHierarchy();
 
-  const initSignalR = async () => {
-    const conn = await startConnection();
+  // Utility function to find and remove a node from the tree
+  const removeNodeFromTree = (tree, nodeId) => {
+    if (!tree) return { tree: null, removed: false };
 
-    if (conn) {
-      // Remove old handlers (avoid duplicates)
-      conn.off("nodeAdded");
-      conn.off("signalAdded");
+    let wasRemoved = false;
 
-      // handlers for real-time updates
-      conn.on("nodeAdded", (message) => {
-        console.log("Node added:", message);
-        toast.info(`New node added: ${message}`);
-        reloadHierarchy();
+    const removeRecursive = (node) => {
+      if (node.children) {
+        const filteredChildren = node.children.filter((child) => {
+          if (child.id === nodeId) {
+            wasRemoved = true;
+            return false;
+          }
+          return true;
+        });
+
+        const updatedChildren = filteredChildren.map(removeRecursive);
+
+        return {
+          ...node,
+          children: updatedChildren,
+        };
+      }
+
+      return node;
+    };
+
+    if (tree.children) {
+      const filteredRootChildren = tree.children.filter((child) => {
+        if (child.id === nodeId) {
+          wasRemoved = true;
+          return false;
+        }
+        return true;
       });
 
-      conn.on("signalAdded", (message) => {
-        console.log("Signal added:", message);
-        toast.info(`New signal added: ${message}`);
-        reloadHierarchy();
-      });
+      const updatedTree = {
+        ...tree,
+        children: filteredRootChildren.map(removeRecursive),
+      };
+
+      return { tree: updatedTree, removed: wasRemoved };
     }
+
+    const updatedTree = removeRecursive(tree);
+    return { tree: updatedTree, removed: wasRemoved };
   };
 
-  loadUser();
-  reloadHierarchy();
-  initSignalR();
+  // Utility function to add a node to the tree
+  const addNodeToTree = (tree, parentId, newNode) => {
+    if (!tree) return null;
 
-  return () => {
-    const conn = getConnection();
-    if (conn) {
-      conn.off("nodeAdded");
-      conn.off("signalAdded");
-      conn.stop();
+    if (!parentId) {
+      // Adding to root level
+      return {
+        ...tree,
+        children: [...(tree.children || []), newNode],
+      };
     }
-  };
-}, []);
 
+    const addRecursive = (node) => {
+      if (node.id === parentId) {
+        return {
+          ...node,
+          children: [...(node.children || []), newNode],
+        };
+      }
+
+      if (node.children) {
+        return {
+          ...node,
+          children: node.children.map(addRecursive),
+        };
+      }
+
+      return node;
+    };
+
+    if (tree.children) {
+      return {
+        ...tree,
+        children: tree.children.map(addRecursive),
+      };
+    }
+
+    return addRecursive(tree);
+  };
+
+  // Count total nodes in tree
+  const countNodes = (tree) => {
+    if (!tree) return 0;
+
+    let count = 0;
+
+    const countRecursive = (node) => {
+      count++;
+      if (node.children) {
+        node.children.forEach(countRecursive);
+      }
+    };
+
+    if (tree.children) {
+      tree.children.forEach(countRecursive);
+    } else {
+      countRecursive(tree);
+    }
+
+    return count;
+  };
 
   const reloadHierarchy = async () => {
     try {
@@ -84,34 +233,29 @@ useEffect(() => {
       setLoading(false);
     }
   };
- const moveNode = async (nodeId, newParentId) => {
-  try {
-    setLoading(true); // Show loading state during move operation
-    
-    
-    // Call your backend API to move node
-    await reorderNode(nodeId, newParentId);
 
-    // Add a small delay and force refresh multiple times if needed
-    await new Promise(resolve => setTimeout(resolve, 200));
-    
-    // Force a complete refresh by clearing state first
-    setHierarchyData(null);
-    setFilteredHierarchyData(null);
-    
-    // Then reload fresh data
-    await reloadHierarchy();
+  const moveNode = async (nodeId, newParentId) => {
+    try {
+      setLoading(true);
 
-    toast.success("Node moved successfully!");
-  } catch (err) {
-    console.error("Move node error:", err);
-    toast.error(err.message || "Failed to move node");
-  } finally {
-    setLoading(false);
-  }
-};
+      await reorderNode(nodeId, newParentId);
 
-  // Function to search through hierarchy and count matches
+      // For move operations, it's safer to reload from server
+      // as the structure changes are complex
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      setHierarchyData(null);
+      setFilteredHierarchyData(null);
+      await reloadHierarchy();
+
+      toast.success("Node moved successfully!");
+    } catch (err) {
+      console.error("Move node error:", err);
+      toast.error(err.message || "Failed to move node");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const searchInHierarchy = (node, term) => {
     if (!term) return 0;
 
@@ -129,38 +273,31 @@ useEffect(() => {
     return matches;
   };
 
-  // Function to filter hierarchy based on search term - shows matching nodes with their children only
   const filterHierarchy = (node, term) => {
-  if (!term) return node;
+    if (!term) return node;
 
-  const isMatch = node.name?.toLowerCase().includes(term.toLowerCase());
+    const isMatch = node.name?.toLowerCase().includes(term.toLowerCase());
 
-  // If the current node matches → return it WITH its full children (unfiltered)
-  if (isMatch) {
-    return { ...node }; // return this node and all its children intact
-  }
+    if (isMatch) {
+      return { ...node };
+    }
 
-  // Otherwise → check its children recursively
-  if (node.children) {
-    for (const child of node.children) {
-      const filteredChild = filterHierarchy(child, term);
-      if (filteredChild) {
-        // Return ONLY the matching child branch
-        return filteredChild;
+    if (node.children) {
+      for (const child of node.children) {
+        const filteredChild = filterHierarchy(child, term);
+        if (filteredChild) {
+          return filteredChild;
+        }
       }
     }
-  }
 
-  // No match found
-  return null;
-};
+    return null;
+  };
 
-  
   const handleSearch = (term) => {
     setSearchTerm(term);
 
     if (hierarchyData && term.trim()) {
-      // Count total matches
       let totalMatches = 0;
       if (hierarchyData.children) {
         hierarchyData.children.forEach((child) => {
@@ -169,17 +306,14 @@ useEffect(() => {
       }
       setSearchResults(totalMatches);
 
-      // Filter the hierarchy to show only matching nodes with their children
       const filteredChildren = [];
       if (hierarchyData.children) {
         hierarchyData.children.forEach((child) => {
           const result = filterHierarchy(child, term);
           if (result) {
-            // If result is an array (matching children), add them individually
             if (Array.isArray(result)) {
               filteredChildren.push(...result);
             } else {
-              // If result is a single node, add it
               filteredChildren.push(result);
             }
           }
@@ -191,7 +325,6 @@ useEffect(() => {
         children: filteredChildren,
       });
     } else {
-      // Show all data when no search term
       setSearchResults(0);
       setFilteredHierarchyData(hierarchyData);
     }
@@ -202,15 +335,30 @@ useEffect(() => {
       toast.error("Only Admins can rename nodes.");
       return;
     }
+
     try {
-      await updateNode(id, newName); // calls your update API
-      toast.success("Node renamed");
-      reloadHierarchy(); // refresh tree
+      await updateNode(id, newName);
+
+      // Update local state instead of reloading
+      const updatedTree = updateNodeInTree(hierarchyData, id, (node) => ({
+        ...node,
+        name: newName,
+      }));
+
+      setHierarchyData(updatedTree);
+
+      // Update filtered data if searching
+      if (searchTerm) {
+        handleSearch(searchTerm);
+      } else {
+        setFilteredHierarchyData(updatedTree);
+      }
+
+      toast.success("Node renamed successfully!");
     } catch (error) {
       toast.error(error.response?.data || "Rename failed");
     }
   };
-
 
   const handleAddClick = (node) => {
     if (role !== "Admin") {
@@ -230,15 +378,52 @@ useEffect(() => {
     setShowConfirmDeleteModal(true);
   };
 
-  // New handler for adding signals
   const handleAddSignalClick = (node) => {
     setSelectedNode(node);
     setShowAddSignalModal(true);
   };
 
   const handleSignalModalSuccess = () => {
-    // You might want to show a success message or update some state
     toast.success("Signal operation completed!");
+  };
+
+  // Handle successful node addition
+  const handleNodeAddSuccess = (parentNodeId, newNodeData) => {
+    // Update local state instead of reloading
+    const updatedTree = addNodeToTree(hierarchyData, parentNodeId, newNodeData);
+    const newCount = countNodes(updatedTree);
+
+    setHierarchyData(updatedTree);
+    setCount(newCount);
+
+    // Update filtered data if searching
+    if (searchTerm) {
+      handleSearch(searchTerm);
+    } else {
+      setFilteredHierarchyData(updatedTree);
+    }
+  };
+
+  // Handle successful node deletion
+  const handleNodeDeleteSuccess = (nodeId) => {
+    const { tree: updatedTree, removed } = removeNodeFromTree(
+      hierarchyData,
+      nodeId
+    );
+
+    if (removed && updatedTree) {
+      const newCount = countNodes(updatedTree);
+
+      setHierarchyData(updatedTree);
+      setCount(newCount);
+
+      // Update filtered data if searching
+      if (searchTerm) {
+        handleSearch(searchTerm);
+      } else {
+        setFilteredHierarchyData(updatedTree);
+      }
+    }
   };
 
   useEffect(() => {
@@ -323,13 +508,14 @@ useEffect(() => {
                       Get started by uploading a JSON/XML file or creating your
                       first hierarchy structure.
                     </p>
-                    {role === "Admin" && (<button
-                      onClick={() => handleAddClick(null)}
-                      className="bg-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-medium py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-                    >
-                      Create Your First Hierarchy
-                    </button>)}
-                    
+                    {role === "Admin" && (
+                      <button
+                        onClick={() => handleAddClick(null)}
+                        className="bg-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-medium py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                      >
+                        Create Your First Hierarchy
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -338,7 +524,7 @@ useEffect(() => {
 
           {/* Sidebar - File Operations */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden  top-8">
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden top-8">
               <div className="bg-green-600 p-6">
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
                   <svg
@@ -367,7 +553,7 @@ useEffect(() => {
                 </p>
               </div>
               <div className="p-6">
-                <FileUploader onUploadSuccess={reloadHierarchy}  role ={role}/>
+                <FileUploader onUploadSuccess={reloadHierarchy} role={role} />
               </div>
             </div>
 
@@ -424,7 +610,9 @@ useEffect(() => {
             setShowAddNodeModal(false);
             setSelectedNode(null);
           }}
-          onSuccess={reloadHierarchy}
+          onSuccess={(parentId, newNode) =>
+            handleNodeAddSuccess(parentId, newNode)
+          }
         />
       )}
 
@@ -446,7 +634,7 @@ useEffect(() => {
             setShowConfirmDeleteModal(false);
             setSelectedNode(null);
           }}
-          onSuccess={reloadHierarchy}
+          onSuccess={(nodeId) => handleNodeDeleteSuccess(nodeId)}
         />
       )}
     </main>

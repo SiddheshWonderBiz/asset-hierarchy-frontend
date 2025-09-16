@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { IoChevronForward, IoChevronDown } from "react-icons/io5";
 import { AiOutlinePlusCircle, AiOutlineDelete } from "react-icons/ai";
 import { IoSettingsOutline } from "react-icons/io5";
@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDrag, useDrop } from "react-dnd";
 
-const NodeItem = ({
+const NodeItem = React.memo(({
   node,
   onUpdate,
   onAdd,
@@ -27,11 +27,16 @@ const NodeItem = ({
   const hasChildren = node.children && node.children.length > 0;
   const isAdmin = role === "Admin";
 
-  const handleDoubleClick = () => {
-    if (!onUpdate) return;
+  // Memoize expensive calculations
+  const childrenCount = useMemo(() => {
+    return hasChildren ? node.children.length : 0;
+  }, [hasChildren, node.children?.length]);
+
+  const handleDoubleClick = useCallback(() => {
+    if (!onUpdate || !isAdmin) return;
     setIsEditing(true);
     setNewName(node.name);
-  };
+  }, [onUpdate, isAdmin, node.name]);
 
   // Drag and Drop
   const [{ isDragging }, drag] = useDrag({
@@ -47,48 +52,64 @@ const NodeItem = ({
     accept: "NODE",
     canDrop: () => isAdmin,
     drop: (item, monitor) => {
-      if (!monitor.didDrop()) {
+      if (!monitor.didDrop() && item.id !== node.id) {
         console.log(`Moving node ${item.id} under ${node.id}`);
         onMoveNode && onMoveNode(item.id, node.id);
       }
     },
   });
 
-  const handleBlur = async () => {
+  const handleBlur = useCallback(async () => {
     if (newName.trim() && newName !== node.name) {
       try {
         await updateNode(node.id, newName);
-        onUpdate && onUpdate(node.id, newName); // tell parent to refresh
+        onUpdate && onUpdate(node.id, newName);
         toast.success(`Node renamed to "${newName}"`);
       } catch (error) {
         console.error("Update failed:", error);
         toast.error(error.message || "Failed to update node");
-        setNewName(node.name); // revert back to old name on error
+        setNewName(node.name);
       }
     }
-    setIsEditing(false); // always exit edit mode
-  };
+    setIsEditing(false);
+  }, [newName, node.name, node.id, onUpdate]);
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = useCallback((e) => {
     if (e.key === "Enter") {
       handleBlur();
     } else if (e.key === "Escape") {
       setNewName(node.name);
       setIsEditing(false);
     }
-  };
+  }, [handleBlur, node.name]);
 
-  const handleViewSignals = () => {
+  const handleViewSignals = useCallback(() => {
     navigate(`/signals/${node.id}`, {
       state: { nodeInfo: { id: node.id, name: node.name } },
     });
-  };
+  }, [navigate, node.id, node.name]);
 
-  const handleAddSignalClick = () => {
+  const handleAddSignalClick = useCallback(() => {
     if (onAddSignal) {
       onAddSignal(node);
     }
-  };
+  }, [onAddSignal, node]);
+
+  const handleAddClick = useCallback(() => {
+    if (onAdd) {
+      onAdd(node);
+    }
+  }, [onAdd, node]);
+
+  const handleDeleteClick = useCallback(() => {
+    if (onDelete) {
+      onDelete(node);
+    }
+  }, [onDelete, node]);
+
+  const toggleExpanded = useCallback(() => {
+    setIsExpanded(!isExpanded);
+  }, [isExpanded]);
 
   // Auto-expand when searching
   React.useEffect(() => {
@@ -99,27 +120,36 @@ const NodeItem = ({
     }
   }, [searchTerm, hasChildren, autoExpand]);
 
-  // Highlight search term
-  const highlightSearchTerm = (text, searchTerm) => {
-    if (!text) return null;
-    if (!searchTerm) return text;
+  // Update local name when node name changes from parent
+  React.useEffect(() => {
+    setNewName(node.name);
+  }, [node.name]);
 
-    const regex = new RegExp(`(${searchTerm})`, "gi");
-    const parts = text.split(regex);
+  // Highlight search term - memoized
+  const highlightedName = useMemo(() => {
+    const highlightSearchTerm = (text, searchTerm) => {
+      if (!text) return null;
+      if (!searchTerm) return text;
 
-    return parts.map((part, index) =>
-      regex.test(part) ? (
-        <span
-          key={index}
-          className="bg-green-200 text-green-800 px-1 rounded font-semibold"
-        >
-          {part}
-        </span>
-      ) : (
-        part
-      )
-    );
-  };
+      const regex = new RegExp(`(${searchTerm})`, "gi");
+      const parts = text.split(regex);
+
+      return parts.map((part, index) =>
+        regex.test(part) ? (
+          <span
+            key={index}
+            className="bg-green-200 text-green-800 px-1 rounded font-semibold"
+          >
+            {part}
+          </span>
+        ) : (
+          part
+        )
+      );
+    };
+
+    return highlightSearchTerm(node.name, searchTerm);
+  }, [node.name, searchTerm]);
 
   return (
     <div className="group">
@@ -141,7 +171,7 @@ const NodeItem = ({
             {hasChildren && (
               <button
                 className="text-gray-500 hover:text-emerald-600 transition-colors duration-200 p-1 rounded hover:bg-emerald-50"
-                onClick={() => setIsExpanded(!isExpanded)}
+                onClick={toggleExpanded}
               >
                 {isExpanded ? (
                   <IoChevronDown size={20} />
@@ -167,14 +197,14 @@ const NodeItem = ({
                 />
               ) : (
                 <span className="font-medium text-gray-800 text-lg">
-                  {highlightSearchTerm(node.name, searchTerm)}
+                  {highlightedName}
                 </span>
               )}
 
               {hasChildren && (
                 <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-medium">
-                  {node.children.length}{" "}
-                  {node.children.length === 1 ? "child" : "children"}
+                  {childrenCount}{" "}
+                  {childrenCount === 1 ? "child" : "children"}
                 </span>
               )}
             </div>
@@ -212,10 +242,10 @@ const NodeItem = ({
             </button>
 
             {/* Add Child Node Button */}
-            {onAdd && (
+            {onAdd && isAdmin && (
               <button
                 className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 p-2 rounded-lg transition-all duration-200 transform hover:scale-110"
-                onClick={() => onAdd(node)}
+                onClick={handleAddClick}
                 title="Add child node"
               >
                 <AiOutlinePlusCircle size={22} />
@@ -223,10 +253,10 @@ const NodeItem = ({
             )}
 
             {/* Delete Node Button */}
-            {onDelete && (
+            {onDelete && isAdmin && (
               <button
                 className="text-red-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition-all duration-200 transform hover:scale-110"
-                onClick={() => onDelete(node)}
+                onClick={handleDeleteClick}
                 title="Delete node"
               >
                 <AiOutlineDelete size={22} />
@@ -257,7 +287,7 @@ const NodeItem = ({
                         .includes(searchTerm.toLowerCase())}
                       autoExpand={Boolean(searchTerm)}
                       onMoveNode={onMoveNode}
-                      role={role} // ✅ pass role down
+                      role={role}
                     />
                   </div>
                 </div>
@@ -268,6 +298,8 @@ const NodeItem = ({
       </div>
     </div>
   );
-};
+});
+
+NodeItem.displayName = 'NodeItem';
 
 export default NodeItem;

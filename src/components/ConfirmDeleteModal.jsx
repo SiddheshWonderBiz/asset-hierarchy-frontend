@@ -7,11 +7,15 @@ const ConfirmDeleteModal = ({ nodeToDelete, onClose, onSuccess }) => {
 
   const handleConfirm = async () => {
     if (!nodeToDelete) return;
+    
     setLoading(true);
+    
     try {
       await deleteNode(nodeToDelete.id);
       toast.success(`Node ${nodeToDelete.name} deleted successfully.`);
-      onSuccess();
+      
+      // Pass the deleted node ID to the success handler
+      onSuccess(nodeToDelete.id);
       onClose();
     } catch (error) {
       console.error("Error deleting node:", error);
