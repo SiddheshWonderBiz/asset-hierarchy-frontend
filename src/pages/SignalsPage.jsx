@@ -54,7 +54,7 @@ const SignalsPage = () => {
       window.confirm(`Are you sure you want to delete signal "${signal.name}"?`)
     ) {
       try {
-        await deleteSignal(assetId, signal.id);
+        await deleteSignal(signal.id);
         toast.success("Signal deleted successfully!");
         loadSignals(); // Reload signals
       } catch (error) {

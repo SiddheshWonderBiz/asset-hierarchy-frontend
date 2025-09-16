@@ -229,9 +229,9 @@ export const getSignalsByAsset = async (assetId) => {
   }
 };
 
-export const getSignalById = async (assetId, signalId) => {
+export const getSignalById = async (signalId) => {
   try {
-    const { data } = await axiosInstance.get(`/Signals/asset/${assetId}/signals/${signalId}`);
+    const { data } = await axiosInstance.get(`/Signals/signals/${signalId}`);
     return data;
   } catch (error) {
     console.error("Error fetching signal by ID:", error.response?.data || error.message);
@@ -245,7 +245,7 @@ export const getSignalById = async (assetId, signalId) => {
 
 export const addSignal = async (assetId, signalData) => {
   try {
-    const { data } = await axiosInstance.post(`/Signals/asset/${assetId}/Addsignal`, signalData);
+    const { data } = await axiosInstance.post(`/Signals/asset/${assetId}/add`, signalData);
     return data;
   } catch (error) {
     console.error("Error adding signal:", error.response?.data || error.message);
@@ -259,7 +259,15 @@ export const addSignal = async (assetId, signalData) => {
 
 export const updateSignal = async (assetId, signalId, signalData) => {
   try {
-    const { data } = await axiosInstance.put(`/Signals/asset/${assetId}/${signalId}`, signalData);
+    const payload = {
+      name: signalData.name,
+      valueType: signalData.valueType,
+      description: signalData.description || ""
+    };
+    const { data } = await axiosInstance.put(
+      `/Signals/${signalId}`,
+      payload
+    );
     return data;
   } catch (error) {
     console.error("Error updating signal:", error.response?.data || error.message);
@@ -271,9 +279,10 @@ export const updateSignal = async (assetId, signalId, signalData) => {
   }
 };
 
-export const deleteSignal = async (assetId, signalId) => {
+
+export const deleteSignal = async (signalId) => {
   try {
-    const { data } = await axiosInstance.delete(`/Signals/asset/${assetId}/${signalId}`);
+    const { data } = await axiosInstance.delete(`/Signals/${signalId}`);
     return data;
   } catch (error) {
     console.error("Error deleting signal:", error.response?.data || error.message);
