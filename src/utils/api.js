@@ -26,10 +26,10 @@ export const login = async (identifier, password) => {
   }
 };
 // ------------------Avgerage Calculation API ------------------
-export const calculateAverage = async (colname) => {
+export const calculateAverage = async (signalId) => {
   try {
     const { data } = await axiosInstance.post(
-      `/Calculation/avg?colname=${encodeURIComponent(colname)}`
+      `/Calculation/avg?signalid=${encodeURIComponent(signalId)}`
     );
     return data; // backend returns { message: "Calculation for X queued" }
   } catch (error) { 
