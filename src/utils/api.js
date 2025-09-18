@@ -25,6 +25,21 @@ export const login = async (identifier, password) => {
     throw new Error(message);
   }
 };
+// ------------------Avgerage Calculation API ------------------
+export const calculateAverage = async (colname) => {
+  try {
+    const { data } = await axiosInstance.post(
+      `/Calculation/avg?colname=${encodeURIComponent(colname)}`
+    );
+    return data; // backend returns { message: "Calculation for X queued" }
+  } catch (error) { 
+    const message =
+      error.response?.data?.message || error.message || "Calculation failed";
+    console.error("Calculation error:", message);   
+    throw new Error(message);
+  }
+};
+
 
 export const signup = async (username, email, password) => {
   try {

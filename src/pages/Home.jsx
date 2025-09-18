@@ -9,6 +9,7 @@ import {
   updateNode,
   fetchCurrentUser,
   reorderNode,
+  calculateAverage,
 } from "../utils/api.js";
 import { toast } from "react-toastify";
 import { startConnection, getConnection } from "../utils/signalr";
@@ -25,6 +26,7 @@ const Home = () => {
   const [searchResults, setSearchResults] = useState(0);
   const [filteredHierarchyData, setFilteredHierarchyData] = useState(null);
   const [role, setRole] = useState(null);
+  const [averageResults, setAverageResults] = useState({});
 
   useEffect(() => {
     const loadUser = async () => {
@@ -42,20 +44,27 @@ const Home = () => {
       if (conn) {
         conn.off("nodeAdded");
         conn.off("signalAdded");
-
+        conn.off("ReceiveAverageResult");
         conn.on("nodeAdded", ({ parentId, node }) => {
           console.log("Node added:", node, "under parent:", parentId);
           toast.info(`New node added: ${node.name}`);
 
           setHierarchyData((prevTree) => {
             const updatedTree = addNodeToTree(prevTree, parentId, node);
-
             if (searchTerm) handleSearch(searchTerm);
             else setFilteredHierarchyData(updatedTree);
-
             setCount(countNodes(updatedTree));
             return updatedTree;
           });
+        });
+        conn.on("ReceiveAverageResult", ({ column, average }) => {
+          console.log(`Average for ${column}: ${average}`);
+          toast.success(`Average for ${column}: ${average}`);
+
+          setAverageResults((prev) => ({
+            ...prev,
+            [column]: average,
+          }));
         });
 
         conn.on("signalAdded", (message) => {
@@ -75,6 +84,7 @@ const Home = () => {
       if (conn) {
         conn.off("nodeAdded");
         conn.off("signalAdded");
+        conn.off("ReceiveAverageResult");
         conn.stop();
       }
     };
@@ -457,6 +467,7 @@ const Home = () => {
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Hierarchy Viewer - Takes up more space */}
+
           <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
               <div className="p-8">
@@ -577,7 +588,14 @@ const Home = () => {
                     </svg>
                     Quick Stats
                   </h4>
-                  <div className="grid grid-cols-1 gap-3">
+                  <button
+                    className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl fle"
+                    onClick={() => calculateAverage("NameLength")}
+                  >
+                    Calculate Average Node Name Length
+                  </button>
+
+                  <div className="grid grid-cols-1 gap-3 mt-3">
                     <div className="bg-gradient-to-r from-emerald-50 to-green-50 p-4 rounded-lg border border-emerald-100">
                       <div className="text-2xl font-bold text-emerald-700">
                         {count}
