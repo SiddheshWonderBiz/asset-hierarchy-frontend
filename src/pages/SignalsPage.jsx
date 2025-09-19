@@ -187,7 +187,6 @@ const SignalsPage = () => {
                       </p>
                     )}
 
-                    {/* ✅ Show Average if available */}
                     {avgRes?.[signal.id] && (
                       <p className="text-sm text-indigo-600 font-medium mt-2">
                         Average Value: {avgRes[signal.id]}
@@ -210,7 +209,7 @@ const SignalsPage = () => {
                     >
                       <AiOutlineDelete size={18} />
                     </button>
-                    {/* ✅ New Button: Calculate Average */}
+                    {/*   New Button: Calculate Average */}
                     <button
                       onClick={() => calculateAverage(signal.id)}
                       className="p-2 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-all duration-200 transform hover:scale-110"

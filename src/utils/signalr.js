@@ -18,7 +18,7 @@ export const startConnection = async () => {
 
   try {
     await connection.start();
-    console.log("✅ SignalR connected");
+    console.log("  SignalR connected");
   } catch (err) {
     console.error("❌ SignalR connection failed:", err);
   }

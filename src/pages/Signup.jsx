@@ -80,7 +80,10 @@ const Signup = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username Field */}
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700 ml-1">
+              <label
+                htmlFor="username"
+                className="block text-sm font-semibold text-gray-700 ml-1"
+              >
                 Username
               </label>
               <div className="relative group">
@@ -111,9 +114,11 @@ const Signup = () => {
               </div>
             </div>
             {/* Email Field */}
-            {/* Email Field */}
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700 ml-1">
+              <label
+                htmlFor="email"
+                className="block text-sm font-semibold text-gray-700 ml-1"
+              >
                 Email
               </label>
               <div className="relative group">
@@ -149,74 +154,77 @@ const Signup = () => {
             </div>
 
             {/* Password Field */}
-<div className="space-y-2 relative">
-  {/* Label */}
-  <label className="block text-sm font-semibold text-gray-700 ml-1">
-    Password
-  </label>
+            <div className="space-y-2 relative">
+              {/* Label */}
+              <label
+                htmlFor="password"
+                className="block text-sm font-semibold text-gray-700 ml-1"
+              >
+                Password
+              </label>
 
-  {/* Input wrapper */}
-  <div className="relative group">
-    {/* Left Icon */}
-    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-      <IoLockClosedOutline className="h-5 w-5 text-gray-400 group-focus-within:text-purple-500 transition-colors" />
-    </div>
+              {/* Input wrapper */}
+              <div className="relative group">
+                {/* Left Icon */}
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <IoLockClosedOutline className="h-5 w-5 text-gray-400 group-focus-within:text-purple-500 transition-colors" />
+                </div>
 
-    {/* Input */}
-    <input
-      type={showPassword ? "text" : "password"}
-      value={password}
-      onChange={(e) => setPassword(e.target.value)}
-      className="w-full pl-12 pr-20 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:bg-white transition-all duration-200 text-gray-900 placeholder-gray-500"
-      placeholder="Create a strong password"
-      disabled={loading}
-      required
-      maxLength={30}
-    />
+                {/* Input */}
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-12 pr-20 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:bg-white transition-all duration-200 text-gray-900 placeholder-gray-500"
+                  placeholder="Create a strong password"
+                  disabled={loading}
+                  required
+                  maxLength={30}
+                />
 
-    {/* Toggle password visibility */}
-    <button
-      type="button"
-      className="absolute inset-y-0 right-10 flex items-center px-2 hover:text-gray-600 text-gray-400"
-      onClick={() => setShowPassword(!showPassword)}
-    >
-      {showPassword ? (
-        <IoEyeOffOutline className="h-5 w-5" />
-      ) : (
-        <IoEyeOutline className="h-5 w-5" />
-      )}
-    </button>
+                {/* Toggle password visibility */}
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-10 flex items-center px-2 hover:text-gray-600 text-gray-400"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <IoEyeOffOutline className="h-5 w-5" />
+                  ) : (
+                    <IoEyeOutline className="h-5 w-5" />
+                  )}
+                </button>
 
-    {/* Character counter */}
-    <div className="absolute inset-y-0 right-2 flex items-center">
-      <span
-        className={`text-xs font-medium px-2 py-1 rounded-full ${
-          password.length > 25
-            ? "text-red-600 bg-red-50"
-            : "text-gray-600 bg-gray-100"
-        }`}
-      >
-        {password.length}/30
-      </span>
-    </div>
-  </div>
+                {/* Character counter */}
+                <div className="absolute inset-y-0 right-2 flex items-center">
+                  <span
+                    className={`text-xs font-medium px-2 py-1 rounded-full ${
+                      password.length > 25
+                        ? "text-red-600 bg-red-50"
+                        : "text-gray-600 bg-gray-100"
+                    }`}
+                  >
+                    {password.length}/30
+                  </span>
+                </div>
+              </div>
 
-  {/* Password rule */}
-  <div className="ml-1 flex items-center space-x-3 text-xs">
-    <span
-      className={`flex items-center ${
-        password.length >= 6 ? "text-green-600" : "text-gray-400"
-      }`}
-    >
-      <span
-        className={`w-2 h-2 rounded-full mr-1 ${
-          password.length >= 6 ? "bg-green-500" : "bg-gray-300"
-        }`}
-      ></span>
-      6+ characters required
-    </span>
-  </div>
-</div>
+              {/* Password rule */}
+              <div className="ml-1 flex items-center space-x-3 text-xs">
+                <span
+                  className={`flex items-center ${
+                    password.length >= 6 ? "text-green-600" : "text-gray-400"
+                  }`}
+                >
+                  <span
+                    className={`w-2 h-2 rounded-full mr-1 ${
+                      password.length >= 6 ? "bg-green-500" : "bg-gray-300"
+                    }`}
+                  ></span>
+                  6+ characters required
+                </span>
+              </div>
+            </div>
 
             {/* Account Type Info */}
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { addSignal, updateSignal } from "../utils/api.js";
 import { toast } from "react-toastify";
+import PropTypes from "prop-types";
 
 const AddSignalModal = ({ node, onClose, onSuccess, editingSignal = null }) => {
   const [formData, setFormData] = useState({
@@ -81,7 +82,10 @@ const AddSignalModal = ({ node, onClose, onSuccess, editingSignal = null }) => {
             {/* Signal Name */}
             {/* Signal Name */}
             <div className="relative">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label
+                htmlFor="name"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Signal Name *
               </label>
               <input
@@ -108,7 +112,10 @@ const AddSignalModal = ({ node, onClose, onSuccess, editingSignal = null }) => {
 
             {/* Value Type */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label
+                htmlFor="valuetype"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Value Type *
               </label>
               <select
@@ -127,31 +134,36 @@ const AddSignalModal = ({ node, onClose, onSuccess, editingSignal = null }) => {
             </div>
 
             {/* Description */}
-           {/* Description */}
-<div className="relative">
-  <label className="block text-sm font-semibold text-gray-700 mb-2">
-    Description
-  </label>
-  <textarea
-    name="description"
-    value={formData.description}
-    onChange={handleInputChange}
-    placeholder="Enter signal description (optional)"
-    rows={3}
-    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 resize-none"
-    maxLength={300}
-  />
-  {/* Character Counter */}
-  <div className="absolute right-3 bottom-2 text-xs">
-    <span
-      className={`font-medium ${
-        formData.description.length > 280 ? "text-red-500" : "text-gray-400"
-      }`}
-    >
-      {formData.description.length}/300
-    </span>
-  </div>
-</div>
+            {/* Description */}
+            <div className="relative">
+              <label
+                htmlFor="description"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
+                Description
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                placeholder="Enter signal description (optional)"
+                rows={3}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 resize-none"
+                maxLength={300}
+              />
+              {/* Character Counter */}
+              <div className="absolute right-3 bottom-2 text-xs">
+                <span
+                  className={`font-medium ${
+                    formData.description.length > 280
+                      ? "text-red-500"
+                      : "text-gray-400"
+                  }`}
+                >
+                  {formData.description.length}/300
+                </span>
+              </div>
+            </div>
           </div>
 
           {/* Buttons */}
@@ -186,5 +198,18 @@ const AddSignalModal = ({ node, onClose, onSuccess, editingSignal = null }) => {
     </div>
   );
 };
-
+AddSignalModal.propTypes = {
+  node: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    name: PropTypes.string,
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func.isRequired,
+  editingSignal: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    name: PropTypes.string,
+    valueType: PropTypes.string,
+    description: PropTypes.string,
+  }),
+};
 export default AddSignalModal;

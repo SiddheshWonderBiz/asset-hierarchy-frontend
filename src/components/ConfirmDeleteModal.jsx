@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { deleteNode } from "../utils/api";
 import { toast } from "react-toastify";
+import PropTypes from "prop-types";
 
 const ConfirmDeleteModal = ({ nodeToDelete, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
@@ -87,6 +88,15 @@ const ConfirmDeleteModal = ({ nodeToDelete, onClose, onSuccess }) => {
       </div>
     </div>
   );
+};
+
+ConfirmDeleteModal.propTypes = {
+  nodeToDelete: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    name: PropTypes.string,
+  }),
+  onClose: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func.isRequired,
 };
 
 export default ConfirmDeleteModal;

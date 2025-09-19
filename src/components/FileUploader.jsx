@@ -1,6 +1,7 @@
 import React from "react";
 import { uploadHierarchyData, downloadHierarchyData } from "../utils/api";
 import { toast } from "react-toastify";
+import PropTypes from "prop-types";
 
 const FileUploader = ({ onUploadSuccess , role }) => {
   const isAdmin = role === "Admin";
@@ -59,11 +60,9 @@ const FileUploader = ({ onUploadSuccess , role }) => {
             className="flex flex-col items-center justify-center w-full rounded-xl cursor-pointer bg-gradient-to-br from-gray-50 to-gray-100 hover:from-emerald-50 hover:to-green-50 border-2 border-dashed border-gray-300 hover:border-emerald-400 transition-all duration-300 ease-in-out p-4 shadow-sm hover:shadow-md"
           >
             <div className="flex flex-col items-center justify-center">
-              
-              <p className="text-sm font-semibold text-gray-700 group-hover:text-emerald-700 transition-colors duration-300">
+             <p className="text-sm font-semibold text-gray-700 group-hover:text-emerald-700 transition-colors duration-300">
                 Upload JSON/XML File
               </p>
-            
             </div>
             <input
               id="file-upload"
@@ -89,6 +88,11 @@ const FileUploader = ({ onUploadSuccess , role }) => {
       </div>
     </div>
   );
+};
+
+FileUploader.propTypes = {
+  onUploadSuccess: PropTypes.func.isRequired,
+  role: PropTypes.string.isRequired,
 };
 
 export default FileUploader;

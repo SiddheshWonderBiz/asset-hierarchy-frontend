@@ -1,7 +1,7 @@
 import React from "react";
 import NodeItem from "./NodeItem";
 import SearchBar from "./SearchBar";
-
+import PropTypes from "prop-types";
 
 const HierarchyViewer = ({
   data,
@@ -62,7 +62,7 @@ const HierarchyViewer = ({
                 )}
                 <NodeItem
                   node={child}
-                  onAdd={isAdmin ? onAdd : undefined} // ✅ disable if not Admin
+                  onAdd={isAdmin ? onAdd : undefined} //   disable if not Admin
                   onDelete={isAdmin ? onDelete : undefined}
                   onUpdate={isAdmin ? onUpdate : undefined}
                   onAddSignal={onAddSignal}
@@ -114,4 +114,18 @@ const HierarchyViewer = ({
   );
 };
 
+HierarchyViewer.propTypes = {
+  data: PropTypes.object,
+  onAdd: PropTypes.func,
+  onDelete: PropTypes.func,
+  onUpdate: PropTypes.func,
+  onAddHierarchy: PropTypes.func,
+  onAddSignal: PropTypes.func.isRequired,
+  onSearch: PropTypes.func.isRequired,
+  searchTerm: PropTypes.string,
+  searchResults: PropTypes.number.isRequired,
+  totalNodes: PropTypes.number.isRequired,
+  role: PropTypes.string.isRequired,
+  moveNode: PropTypes.func.isRequired
+};
 export default HierarchyViewer;

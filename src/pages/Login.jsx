@@ -35,7 +35,7 @@ const Login = () => {
       const message = await login(username, password); // cookie is set automatically
       console.log("Login response message:", message);
 
-      // ✅ Fetch user info after login
+      //   Fetch user info after login
       const user = await fetchCurrentUser();
       console.log("Logged in user:", user);
 
@@ -86,7 +86,7 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username Field */}
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700 ml-1">
+              <label htmlFor="username" className="block text-sm font-semibold text-gray-700 ml-1">
                 Username or Email
               </label>
 
@@ -108,7 +108,7 @@ const Login = () => {
 
             {/* Password Field */}
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700 ml-1">
+              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 ml-1">
                 Password
               </label>
               <div className="relative group">

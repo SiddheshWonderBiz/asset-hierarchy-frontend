@@ -6,7 +6,7 @@ const axiosInstance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true, // ✅ send cookies with every request
+  withCredentials: true, //   send cookies with every request
 });
 
 // ------------------ Auth API ------------------

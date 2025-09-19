@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 
 const SearchBar = ({ onSearch, searchResults, totalNodes }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -117,4 +118,9 @@ const SearchBar = ({ onSearch, searchResults, totalNodes }) => {
   );
 };
 
+SearchBar.propTypes = {
+  onSearch: PropTypes.func.isRequired,
+  searchResults: PropTypes.number.isRequired,
+  totalNodes: PropTypes.number.isRequired,
+};
 export default SearchBar;

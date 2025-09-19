@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { addNode, addHierarchy } from "../utils/api.js";
 import { toast } from "react-toastify";
+import PropTypes from "prop-types"; //   Capital P
 
 const AddNodeModal = ({ parentNode = null, onClose, onSuccess }) => {
   const [name, setName] = useState("");
@@ -23,23 +24,17 @@ const AddNodeModal = ({ parentNode = null, onClose, onSuccess }) => {
 
     try {
       let addedNode;
-      
+
       if (parentNode && parentNode.id) {
-  addedNode = await addNode(parentNode.id, newNode);
-  toast.success(`Node "${name}" added under "${parentNode.name}".`);
-  addedNode = addedNode.addedNode; // Node response
-} else {
-  addedNode = await addHierarchy(newNode);
-  toast.success(`Hierarchy "${name}" added successfully.`);
-  addedNode = addedNode.addedHierarchy; // Hierarchy response
-}
+        addedNode = await addNode(parentNode.id, newNode);
+        toast.success(`Node "${name}" added under "${parentNode.name}".`);
+        addedNode = addedNode.addedNode;
+      } else {
+        addedNode = await addHierarchy(newNode);
+        toast.success(`Hierarchy "${name}" added successfully.`);
+        addedNode = addedNode.addedHierarchy;
+      }
 
-
-      // Create the complete node object with the response data
-      // Correct version: take the node from backend
-
-
-      // Pass the parent ID and new node data to the success handler
       onSuccess(parentNode?.id || null, addedNode);
       onClose();
       setName("");
@@ -57,11 +52,26 @@ const AddNodeModal = ({ parentNode = null, onClose, onSuccess }) => {
         {/* Header */}
         <div className="bg-green-600 px-6 py-4 rounded-t-xl">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              />
             </svg>
             {parentNode && parentNode.name ? (
-              <>Add Child to <span className="text-emerald-200 font-medium">{parentNode.name}</span></>
+              <>
+                Add Child to{" "}
+                <span className="text-emerald-200 font-medium">
+                  {parentNode.name}
+                </span>
+              </>
             ) : (
               "Add New Hierarchy"
             )}
@@ -72,11 +82,15 @@ const AddNodeModal = ({ parentNode = null, onClose, onSuccess }) => {
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label
+                htmlFor="name"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Node Name
               </label>
               <div className="relative">
                 <input
+                  id="name"
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -87,7 +101,11 @@ const AddNodeModal = ({ parentNode = null, onClose, onSuccess }) => {
                   disabled={loading}
                 />
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <span className={`text-xs font-medium ${name.length > 40 ? 'text-red-500' : 'text-gray-400'}`}>
+                  <span
+                    className={`text-xs font-medium ${
+                      name.length > 40 ? "text-red-500" : "text-gray-400"
+                    }`}
+                  >
                     {name.length}/50
                   </span>
                 </div>
@@ -111,9 +129,24 @@ const AddNodeModal = ({ parentNode = null, onClose, onSuccess }) => {
               >
                 {loading ? (
                   <div className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                    <svg
+                      className="animate-spin w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
                     </svg>
                     Adding...
                   </div>
@@ -127,6 +160,16 @@ const AddNodeModal = ({ parentNode = null, onClose, onSuccess }) => {
       </div>
     </div>
   );
+};
+
+AddNodeModal.propTypes = {
+  parentNode: PropTypes.shape({
+    id: PropTypes.number,
+    name: PropTypes.string,
+    children: PropTypes.array,
+  }),
+  onClose: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func.isRequired,
 };
 
 export default AddNodeModal;

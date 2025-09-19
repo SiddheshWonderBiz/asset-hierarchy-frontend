@@ -9,7 +9,7 @@ const Header = () => {
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
-  // ✅ Fetch user details from backend on mount
+  //   Fetch user details from backend on mount
   useEffect(() => {
     const loadUser = async () => {
       try {
@@ -140,7 +140,7 @@ const Header = () => {
                   </div>
                 </div>
 
-                {/* ✅ Logs Link - Only for Admins */}
+                {/*   Logs Link - Only for Admins */}
                 {isAdmin() && (
                   <button
                     onClick={() => {

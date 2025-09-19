@@ -1,0 +1,6 @@
+projectKey=AssetHierarchy
+serverUrl=http://localhost:9000
+serverVersion=25.9.0.112764
+dashboardUrl=http://localhost:9000/dashboard?id=AssetHierarchy
+ceTaskId=fd53e756-5313-45fd-9fe9-3d14e21fbc0d
+ceTaskUrl=http://localhost:9000/api/ce/task?id=fd53e756-5313-45fd-9fe9-3d14e21fbc0d

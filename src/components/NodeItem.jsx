@@ -6,6 +6,7 @@ import { updateNode } from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDrag, useDrop } from "react-dnd";
+import PropTypes from "prop-types";
 
 const NodeItem = React.memo(({
   node,
@@ -301,5 +302,21 @@ const NodeItem = React.memo(({
 });
 
 NodeItem.displayName = 'NodeItem';
+NodeItem.propTypes = {
+  node: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    name: PropTypes.string,
+    children: PropTypes.array,
+  }).isRequired,
+  onUpdate: PropTypes.func,
+  onAdd: PropTypes.func,
+  onDelete: PropTypes.func,
+  onAddSignal: PropTypes.func,
+  searchTerm: PropTypes.string,
+  isSearchMatch: PropTypes.bool,
+  autoExpand: PropTypes.bool,
+  onMoveNode: PropTypes.func,
+  role: PropTypes.string.isRequired,
+};
 
 export default NodeItem;
