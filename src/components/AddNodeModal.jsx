@@ -25,20 +25,22 @@ const AddNodeModal = ({ parentNode = null, onClose, onSuccess }) => {
       let addedNode;
       
       if (parentNode && parentNode.id) {
-        addedNode = await addNode(parentNode.id, newNode);
-        toast.success(`Node "${name}" added under "${parentNode.name}".`);
-      } else {
-        addedNode = await addHierarchy(newNode);
-        toast.success(`Hierarchy "${name}" added successfully.`);
-      }
+  addedNode = await addNode(parentNode.id, newNode);
+  toast.success(`Node "${name}" added under "${parentNode.name}".`);
+  addedNode = addedNode.addedNode; // Node response
+} else {
+  addedNode = await addHierarchy(newNode);
+  toast.success(`Hierarchy "${name}" added successfully.`);
+  addedNode = addedNode.addedHierarchy; // Hierarchy response
+}
+
 
       // Create the complete node object with the response data
       // Correct version: take the node from backend
-const completeNode = addedNode.addedNode || addedNode; // backend returns { addedNode }
 
 
       // Pass the parent ID and new node data to the success handler
-      onSuccess(parentNode?.id || null, completeNode);
+      onSuccess(parentNode?.id || null, addedNode);
       onClose();
       setName("");
     } catch (error) {

@@ -442,11 +442,43 @@ const Home = () => {
               Upload, visualize, and manage your asset structure with ease and
               efficiency.
             </p>
-            <div className="inline-flex items-center gap-2 bg-white bg-opacity-20 backdrop-blur-sm rounded-full px-6 py-3">
-              <div className="w-2 h-2 bg-emerald-300 rounded-full animate-pulse"></div>
-              <span className="font-semibold text-green-700">
-                Total Nodes: {count}
-              </span>
+            
+            {/* Stats in Hero Section */}
+            <div className="flex flex-wrap justify-center gap-4 mt-8">
+              <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-full px-6 py-3 flex items-center gap-2">
+                <span className="font-semibold text-emerald-400">
+                  Total Nodes: {count}
+                </span>
+              </div>
+              
+              {filteredHierarchyData && (
+                <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-full px-6 py-3 flex items-center gap-2">
+                  <span className="font-semibold text-emerald-400">
+                    {searchTerm ? "Matching Node" : "Root Hierarchies"} : {filteredHierarchyData?.children?.length || 0}
+                  </span>
+                </div>
+              )}
+              
+              {searchTerm && searchResults > 0 && (
+                <div className="bg-yellow-500 bg-opacity-20 backdrop-blur-sm rounded-full px-6 py-3 flex items-center gap-2">
+                  <svg
+                    className="w-4 h-4 text-yellow-200"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                  <span className="font-semibold">
+                    Search Results: {searchResults}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -456,7 +488,6 @@ const Home = () => {
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Hierarchy Viewer - Takes up more space */}
-
           <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
               <div className="p-8">
@@ -556,49 +587,6 @@ const Home = () => {
                 <FileUploader onUploadSuccess={reloadHierarchy} role={role} />
               </div>
             </div>
-
-            {/* Quick Stats Card */}
-            {filteredHierarchyData && (
-              <div className="mt-6 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-                <div className="p-6">
-                  <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <svg
-                      className="w-5 h-5 text-emerald-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                      />
-                    </svg>
-                    Quick Stats
-                  </h4>
-                  
-                  <div className="grid grid-cols-1 gap-3 mt-3">
-                    <div className="bg-gradient-to-r from-emerald-50 to-green-50 p-4 rounded-lg border border-emerald-100">
-                      <div className="text-2xl font-bold text-emerald-700">
-                        {count}
-                      </div>
-                      <div className="text-sm text-emerald-600">
-                        Total Nodes
-                      </div>
-                    </div>
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100">
-                      <div className="text-2xl font-bold text-blue-700">
-                        {filteredHierarchyData?.children?.length || 0}
-                      </div>
-                      <div className="text-sm text-blue-600">
-                        {searchTerm ? "Matching Nodes" : "Root Hierarchies"}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
