@@ -14,6 +14,8 @@
     "@tailwindcss/vite": "^4.1.11",
     "axios": "^1.11.0",
     "jwt-decode": "^4.0.0",
+    "prop-types": "^15.8.1",
+    "prop-types-exact": "^1.2.7",
     "react": "^19.1.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
