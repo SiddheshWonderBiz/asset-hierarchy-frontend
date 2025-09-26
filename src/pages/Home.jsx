@@ -9,7 +9,6 @@ import {
   updateNode,
   fetchCurrentUser,
   reorderNode,
-  calculateAverage,
 } from "../utils/api.js";
 import { toast } from "react-toastify";
 import { startConnection, getConnection } from "../utils/signalr";

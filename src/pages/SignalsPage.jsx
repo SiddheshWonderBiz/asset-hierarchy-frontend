@@ -24,12 +24,11 @@ const SignalsPage = () => {
       const conn = await startConnection();
       if (conn) {
         conn.off("ReceiveAverageResult");
-
         conn.on("ReceiveAverageResult", ({ signalId, average }) => {
-  console.log(`Average for Signal ${signalId}: ${average}`);
-  toast.success(`Average for Signal ${signalId}: ${average}`);
+        console.log(`Average for Signal ${signalId}: ${average}`);
+        toast.success(`Average for Signal ${signalId}: ${average}`);
 
-  setAvgRes((prev) => ({
+       setAvgRes((prev) => ({
     ...prev,
     [signalId]: average,
   }));
